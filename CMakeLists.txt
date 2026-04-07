@@ -4,8 +4,13 @@ project(MyGameEngine
   VERSION 0.1.0.0
   LANGUAGES CXX)
 
-file(GLOB_RECURSE SOURCES "Source/*.cpp" "Source/*.hpp" "Source/*.c" "Source/*.h")
+file(GLOB_RECURSE SOURCES
+  "Source/*.cpp" "Source/*.hpp" "Source/*.c" "Source/*.h"
+  "Source/*.asm"
+)
 add_executable(Game WIN32 ${SOURCES})
+
+target_include_directories(Game PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Source")
 
 set_target_properties(Game PROPERTIES
   CXX_STANDARD 20

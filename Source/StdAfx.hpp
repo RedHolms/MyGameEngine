@@ -1,5 +1,9 @@
 #pragma once
 
-#include "Win32/win32-incl-wrapper.hpp"
+#define UNLIKELY [[unlikely]]
+#define LIKELY [[likely]]
 
+#define forceinline __forceinline
+
+#include "Types/Meta.hpp"
 #include "Types/Numerics.hpp"
