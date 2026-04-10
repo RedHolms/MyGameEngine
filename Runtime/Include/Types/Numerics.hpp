@@ -11,9 +11,6 @@ using int32_t   = signed long;
 using uint64_t  = unsigned long long;
 using int64_t   = signed long long;
 
-// Type representing UNICODE codepoint
-using unicode_t = unsigned long;
-
 template <uint VoidPointerSize>
 struct __DetermineMachineWordType;
 

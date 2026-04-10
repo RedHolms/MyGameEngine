@@ -5,7 +5,7 @@
 #include "Win32Api/CurrentProcess.hpp"
 
 // Real entry point
-extern uint MyGameEngineMain();
+extern uint Main();
 
 /**
  * Program entry point.
@@ -17,7 +17,7 @@ extern "C" void __MyGameEngineRuntime_EntryPoint() {
   __mgert_isa_init();
   __mgert_run_initializers();
 
-  uint exitCode = MyGameEngineMain();
+  uint exitCode = Main();
 
   __mgert_run_terminators();
 

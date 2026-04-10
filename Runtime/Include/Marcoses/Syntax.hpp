@@ -4,3 +4,4 @@
 #define LIKELY      [[likely]]
 
 #define forceinline __forceinline
+#define implicit    explicit(false)

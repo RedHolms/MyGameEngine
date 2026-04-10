@@ -1,7 +1,32 @@
 #pragma once
 
+template <typename T>
+struct WrapType {
+  using Type = T;
+};
+
 template <class Wrapper>
 using UnwrapType = Wrapper::Type;
+
+template <auto V>
+struct WrapValue {
+  static constexpr auto Value = V;
+};
+
+template <class Wrapper>
+constexpr auto UnwrapValue = Wrapper::Value;
+
+template <bool Select, typename TrueType, typename FalseType>
+struct __ConditionalType_WRAPPER;
+
+template <typename T, typename F>
+struct __ConditionalType_WRAPPER<true, T, F> : WrapType<T> {};
+
+template <typename T, typename F>
+struct __ConditionalType_WRAPPER<false, T, F> : WrapType<F> {};
+
+template <bool Select, typename TrueType, typename FalseType>
+using ConditionalType = UnwrapType<__ConditionalType_WRAPPER<Select, TrueType, FalseType>>;
 
 template <typename...>
 using AsVoid = void;
@@ -88,3 +113,15 @@ constexpr bool IsTriviallyCopyableType = __is_trivially_copyable(T);
 
 template <typename T>
 constexpr bool IsTriviallyDestructibleType = __is_trivially_destructible(T);
+
+template <typename, typename>
+constexpr bool IsSameType = false;
+
+template <typename T>
+constexpr bool IsSameType<T, T> = true;
+
+template <typename T, typename... Ts>
+constexpr bool IsAnyTypeOf = (IsSameType<T, Ts> || ...);
+
+template <typename T, typename... Ts>
+concept AnyTypeOf = IsAnyTypeOf<T, Ts...>;

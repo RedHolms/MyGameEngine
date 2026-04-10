@@ -7,3 +7,4 @@ function(add_test_target NAME)
 endfunction()
 
 add_test_target(ListTests)
+add_test_target(StringTests)

@@ -13,7 +13,7 @@ public:
     friend List;
 
   private:
-    constexpr Iterator(List* container, size_t index)
+    constexpr Iterator(List* container, size_t index) noexcept
       : m_container(container), m_index(index) {}
 
   public:
@@ -85,7 +85,7 @@ public:
     friend List;
 
   private:
-    constexpr ConstIterator(List const* container, size_t index)
+    constexpr ConstIterator(List const* container, size_t index) noexcept
       : m_container(container), m_index(index) {}
 
   public:
@@ -154,7 +154,7 @@ public:
   };
 
 public:
-  consteval List() = default;
+  consteval List() noexcept = default;
   constexpr ~List() noexcept {
     _Reset();
   }
@@ -372,13 +372,13 @@ private:
         m_buffer[i].~T();
     }
 
-    Memory::Deallocate(m_buffer);
+    delete[] m_buffer;
   }
 
   constexpr void _Reallocate(size_t newCapacity) noexcept {
     // ASSERT: newCapacity >= m_count
 
-    auto const newBuffer = static_cast<T*>(Memory::Allocate(newCapacity * sizeof(T)));
+    auto const newBuffer = new T[newCapacity];
     m_capacity = newCapacity;
 
     if (m_buffer == nullptr) UNLIKELY {
@@ -399,7 +399,7 @@ private:
       }
     }
 
-    Memory::Deallocate(m_buffer);
+    delete[] m_buffer;
     m_buffer = newBuffer;
   }
 
