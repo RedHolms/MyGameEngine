@@ -1,13 +1,11 @@
 #pragma once
+
 #include "Memory/Utils.hpp"
+#include "Types/Chars.hpp"
 
-template <typename T>
-constexpr bool IsCharType = IsAnyTypeOf<T, char, wchar_t, char8_t, char16_t, char32_t>;
-
-template <typename T>
-concept CharType = IsCharType<T>;
-
-// Unicode string
+/**
+ * Unicode (UCS-4) string container
+ */
 class String {
 public:
   using ItemType = char32_t;
