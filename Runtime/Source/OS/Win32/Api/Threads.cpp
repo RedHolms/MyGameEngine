@@ -1,4 +1,4 @@
-#include "Win32Api/CurrentThread.hpp"
+#include "Win32Api/Threads.hpp"
 
 #include "DeclSpecs.hpp"
 

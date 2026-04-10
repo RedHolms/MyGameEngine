@@ -1,14 +1,17 @@
 #pragma once
 
+#include "Memory/Buffer.hpp"
 #include "Memory/Utils.hpp"
 #include "Types/Chars.hpp"
+
+enum class Encoding : uint;
 
 /**
  * Unicode (UCS-4) string container
  */
 class String {
 public:
-  using ItemType = char32_t;
+  using ItemType = ucs4_t;
 
 public:
   class Iterator;
@@ -18,21 +21,30 @@ public:
   consteval String() noexcept = default;
 
   // NOTE: this is ASCII!!!
-  constexpr String(const char* asciiString, size_t lengthInChars)
-    : m_buffer(new char32_t[lengthInChars]),
+  constexpr String(const char* asciiString, size_t lengthInChars) noexcept
+    : m_buffer(new ucs4_t[lengthInChars]),
       m_length(lengthInChars),
       m_capacity(lengthInChars)
   {
     for (size_t i = 0; i < m_length; ++i)
-      m_buffer[i] = static_cast<char32_t>(asciiString[i]); // zero extend
+      m_buffer[i] = static_cast<ucs4_t>(asciiString[i]); // zero extend
   }
 
-  constexpr String(const char32_t* string, size_t lengthInChars)
-    : m_buffer(new char32_t[lengthInChars]),
+  constexpr String(const char32_t* string, size_t lengthInChars) noexcept
+    : m_buffer(new ucs4_t[lengthInChars]),
       m_length(lengthInChars),
       m_capacity(lengthInChars)
   {
-    Memory::CopyItems<char32_t>(m_buffer, string, lengthInChars);
+    static_assert(sizeof(char32_t) == sizeof(ucs4_t));
+
+    // UTF-32 and UCS-4 are effectively the same
+    if (IsConstantEvaluated()) {
+      for (size_t i = 0; i < m_length; ++i)
+        m_buffer[i] = static_cast<ucs4_t>(string[i]);
+    }
+    else {
+      Memory::CopyBytes(m_buffer, string, lengthInChars * sizeof(char32_t));
+    }
   }
 
   constexpr ~String() noexcept {
@@ -108,6 +120,12 @@ public:
   constexpr void Insert(index_t atIndex, String const& string) noexcept;
   constexpr void Remove(index_t atIndex, size_t count = 1) noexcept;
 
+public:
+  Buffer Encode(Encoding encoding) const noexcept;
+
+  // TODO: Create "BufferView"-like class to accept any bytes span
+  static String Decode(Buffer const& bytes, Encoding encoding) noexcept;
+
 private:
   template <typename T>
   static constexpr size_t _CountNullTerminatedStringLength(const T* string) noexcept {
@@ -136,7 +154,7 @@ private:
   constexpr void _Reallocate(size_t newCapacity) noexcept {}
 
 private:
-  char32_t* m_buffer = nullptr; // non null-terminated
+  ucs4_t* m_buffer = nullptr; // non null-terminated
   size_t m_length = 0;
   size_t m_capacity = 0;
 };
@@ -154,3 +172,22 @@ constexpr String operator""s(const char* asciiString, size_t length) noexcept {
 constexpr String operator""s(const char32_t* string, size_t length) noexcept {
   return String(string, length);
 }
+
+enum class Encoding : uint {
+  ASCII,
+  WCHAR, // Platform-dependent "wchar_t" encoding
+
+  UTF8,
+  UTF16, // native endianness
+  UTF16_BE,
+  UTF16_LE,
+  UTF32, // native endianness
+  UTF32_BE,
+  UTF32_LE,
+
+  // ANSI code pages
+  CP1251,
+#if IS_WINDOWS_OS
+  CP_ACP, // Active system code page
+#endif
+};

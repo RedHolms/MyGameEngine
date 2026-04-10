@@ -2,7 +2,7 @@
 #include "Initializers.hpp"
 #include "OS/Win32/Memory/Heap.hpp"
 #include "SecurityCookie.hpp"
-#include "Win32Api/CurrentProcess.hpp"
+#include "Win32Api/Processes.hpp"
 
 // Real entry point
 extern uint Main();

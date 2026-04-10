@@ -1,0 +1,5 @@
+My game engine completely from bare C++. Without even Windows.h.
+Currently there's nothing about game engine, just simple C runtime analogue, but I'm working on it.
+
+Obviously I'm gonna steal A LOT of code from Microsoft's crt/stl and other places because I'm too
+ stupid to write everything myself.

@@ -12,6 +12,10 @@ void operator delete(void* block) {
   Memory::Deallocate(block);
 }
 
+void operator delete(void* block, size_t) {
+  Memory::Deallocate(block);
+}
+
 void operator delete[](void* block) {
   Memory::Deallocate(block);
 }

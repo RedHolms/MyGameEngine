@@ -4,4 +4,5 @@ set(TARGET ExampleGame)
 add_executable(${TARGET})
 
 glob_target_sources(${TARGET} PRIVATE "Source/*.hpp" "Source/*.cpp")
+
 target_link_libraries(${TARGET} PRIVATE MyGameEngine)

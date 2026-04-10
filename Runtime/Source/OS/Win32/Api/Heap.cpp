@@ -21,5 +21,5 @@ void* Win32::Heap::Alloc(RAW_HANDLE heap, uint32_t flags, size_t bytesCount) {
 }
 
 bool Win32::Heap::Free(RAW_HANDLE heap, uint32_t flags, void* block) {
-  return ::HeapFree(heap, flags, block) != 0;
+  return !!::HeapFree(heap, flags, block);
 }

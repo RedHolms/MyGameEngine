@@ -2,7 +2,9 @@
 
 #include "Memory/Utils.hpp"
 
-// Growable array of T
+/**
+ * Growable array of T
+ */
 template <typename T>
 class List {
 public:

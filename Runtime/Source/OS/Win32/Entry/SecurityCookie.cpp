@@ -1,11 +1,11 @@
 #include "SecurityCookie.hpp"
 
-#include "Win32Api/CurrentProcess.hpp"
-#include "Win32Api/CurrentThread.hpp"
 #include "Win32Api/HighResolutionTimer.hpp"
+#include "Win32Api/Processes.hpp"
 #include "Win32Api/SystemTime.hpp"
+#include "Win32Api/Threads.hpp"
 
-#ifdef _WIN64
+#ifdef IS_64_BIT
 #define DEFAULT_SECURITY_COOKIE 0x00002B992DDFA232
 #else
 #define DEFAULT_SECURITY_COOKIE 0xBB40E64E
@@ -25,7 +25,7 @@ static machine_word_t GenerateSecurityCookie() {
   machine_word_t cookie;
 
   Win32::FileTime systemTime = Win32::GetSystemTimeAsFileTime();
-#ifdef _WIN64
+#ifdef IS_64_BIT
   cookie = systemTime.fullDateTime;
 #else
   cookie = systemTime.lowDateTime;
@@ -35,13 +35,13 @@ static machine_word_t GenerateSecurityCookie() {
   cookie ^= Win32::CurrentThread::GetID();
   cookie ^= Win32::CurrentProcess::GetID();
 
-#ifdef _WIN64
+#ifdef IS_64_BIT
   cookie ^= Win32::GetSystemRunTimeInMs() << 56;
 #endif
   cookie ^= static_cast<machine_word_t>(Win32::GetSystemRunTimeInMs());
 
   uint64_t hrtCount = Win32::HighResolutionTimer::GetCount();
-#ifdef _WIN64
+#ifdef IS_64_BIT
   cookie ^= ((hrtCount & 0xFFFFFFFF) << 32) ^ hrtCount;
 #else
   cookie ^= hrtCount & 0xFFFFFFFF;
@@ -50,14 +50,14 @@ static machine_word_t GenerateSecurityCookie() {
 
   cookie ^= reinterpret_cast<uintptr_t>(&cookie);
 
-#if defined (_WIN64)
+#if IS_64_BIT
   /*
-  * On Win64, generate a cookie with the most significant word set to zero,
-  * as a defense against buffer overruns involving null-terminated strings.
-  * Don't do so on Win32, as it's more important to keep 32 bits of cookie.
-  */
+   * On Win64, generate a cookie with the most significant word set to zero,
+   * as a defense against buffer overruns involving null-terminated strings.
+   * Don't do so on Win32, as it's more important to keep 32 bits of cookie.
+   */
   cookie &= 0x0000FFFFFFFFFFFFi64;
-#endif  /* defined (_WIN64) */
+#endif /* defined (_WIN64) */
 
   return cookie;
 }
@@ -65,7 +65,7 @@ static machine_word_t GenerateSecurityCookie() {
 void __declspec(safebuffers) __mgert_init_security_cookie() {
   if (
     __security_cookie != DEFAULT_SECURITY_COOKIE
-#if defined(_M_IX86)
+#if IS_32_BIT
     && (__security_cookie & 0xFFFF0000) != 0
 #endif
   ) {
@@ -78,7 +78,7 @@ void __declspec(safebuffers) __mgert_init_security_cookie() {
   if (cookie == DEFAULT_SECURITY_COOKIE) {
     ++cookie;
   }
-#if defined(_M_IX86)
+#if IS_32_BIT
   else if ((cookie & 0xFFFF0000) == 0) {
     cookie |= ((cookie | 0x4711) << 16);
   }

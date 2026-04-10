@@ -1,5 +1,17 @@
+extern uint OsSpecificInit();
+extern void OsSpecificTerminate();
+
 extern uint GameMain();
 
 uint Main() {
-  return GameMain();
+  uint exitCode;
+
+  if ((exitCode = OsSpecificInit()) != 0)
+    return exitCode;
+
+  exitCode = GameMain();
+
+  OsSpecificTerminate();
+
+  return exitCode;
 }

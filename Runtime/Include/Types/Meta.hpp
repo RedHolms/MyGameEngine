@@ -112,6 +112,9 @@ template <typename T>
 constexpr bool IsTriviallyCopyableType = __is_trivially_copyable(T);
 
 template <typename T>
+concept TriviallyCopyableType = IsTriviallyCopyableType<T>;
+
+template <typename T>
 constexpr bool IsTriviallyDestructibleType = __is_trivially_destructible(T);
 
 template <typename, typename>
@@ -125,3 +128,12 @@ constexpr bool IsAnyTypeOf = (IsSameType<T, Ts> || ...);
 
 template <typename T, typename... Ts>
 concept AnyTypeOf = IsAnyTypeOf<T, Ts...>;
+
+template <typename T>
+constexpr bool IsIntegralType = IsAnyTypeOf<T,
+  bool, char, signed char, unsigned char, wchar_t, char8_t, char16_t, char32_t, short, unsigned short, int,
+  unsigned int, long, unsigned long, long long, unsigned long long
+>;
+
+template <typename T>
+concept IntegralType = IsIntegralType<T>;

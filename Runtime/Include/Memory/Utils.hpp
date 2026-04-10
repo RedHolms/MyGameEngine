@@ -4,6 +4,7 @@ extern "C" {
 
 void __Impl_MemoryCopy(void*, void const*, size_t);
 void __Impl_MemoryMove(void*, void const*, size_t);
+void __Impl_MemoryFill(void*, uint8_t, size_t);
 
 } // extern "C"
 
@@ -47,6 +48,10 @@ constexpr void MoveItems(ExplicitType<T>* dst, ExplicitType<T> const* src, size_
     for (ssize_t i = itemsCount; i-- > 0;)
       dst[i] = src[i];
   }
+}
+
+forceinline void FillBytes(void* dst, uint8_t value, size_t bytesCount) {
+  __Impl_MemoryFill(dst, value, bytesCount);
 }
 
 } // namespace Memory
