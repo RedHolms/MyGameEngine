@@ -71,6 +71,7 @@ private:
     if (remain == 0) {
       // delete the object
       delete m_pointer;
+      delete m_refCount;
       return true;
     }
 
