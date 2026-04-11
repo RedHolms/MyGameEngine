@@ -1,5 +1,5 @@
 #include "Memory/UniquePtr.hpp"
-#include "Threads/CurrentThread.hpp"
+#include "Threading/CurrentThread.hpp"
 #include "Window.hpp"
 
 uint GameMain() {

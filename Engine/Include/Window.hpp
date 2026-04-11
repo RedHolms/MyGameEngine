@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/String.hpp"
-#include "Memory/UniquePtr.hpp"
+#include "Utils/PImpl.hpp"
 
 class Window {
 public:
@@ -11,6 +11,5 @@ public:
 public:
 
 private:
-  struct Data;
-  UniquePtr<Data> m;
+  DECLARE_PIMPL(8);
 };

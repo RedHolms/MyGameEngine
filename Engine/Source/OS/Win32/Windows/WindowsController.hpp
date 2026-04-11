@@ -16,4 +16,4 @@ public:
   Win32::WindowHandle CreateWindow(String const& title, uint width, uint height);
 };
 
-extern WindowsController* gWindowsController;
+inline WindowsController* gWindowsController = nullptr;

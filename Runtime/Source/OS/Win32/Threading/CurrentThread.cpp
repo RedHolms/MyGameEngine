@@ -1,4 +1,4 @@
-#include "Threads/CurrentThread.hpp"
+#include "Threading/CurrentThread.hpp"
 
 #include "Win32Api/Threads.hpp"
 

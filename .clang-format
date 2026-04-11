@@ -14,6 +14,7 @@ UseTab: Never
 
 BinPackLongBracedList: true
 NamespaceIndentation: None
+IndentExternBlock: NoIndent
 IncludeBlocks: Preserve
 InsertNewlineAtEOF: true
 ReferenceAlignment: Left
