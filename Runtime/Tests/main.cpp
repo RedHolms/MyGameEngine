@@ -1,10 +1,5 @@
-#include "Core/String.hpp"
-
-extern bool TestBody();
-
-void shit(String const& arg) {}
+#include "Testing/Main.hpp"
 
 uint Main() {
-  // Run the test body
-  return TestBody() ? 0 : 1;
+  return Testing::RunAllTests();
 }

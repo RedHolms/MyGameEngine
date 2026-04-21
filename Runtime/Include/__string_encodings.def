@@ -1,0 +1,18 @@
+  _ENCODING(ASCII)
+  _ENCODING(WCHAR) // Platform-dependent "wchar_t" encoding
+
+  // Unicode
+  _ENCODING(UTF8)
+  _ENCODING(UTF16) // native endianness
+  _ENCODING(UTF16_BE)
+  _ENCODING(UTF16_LE)
+  _ENCODING(UTF32) // native endianness
+  _ENCODING(UTF32_BE)
+  _ENCODING(UTF32_LE)
+
+  // ANSI code pages
+  _ENCODING(CP1251)
+
+#if IS_WINDOWS_OS
+  _ENCODING(ANSI) // Active system code page
+#endif

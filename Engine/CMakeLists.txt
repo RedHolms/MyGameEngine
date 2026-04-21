@@ -5,12 +5,8 @@ add_library(${TARGET} STATIC)
 
 glob_target_sources(${TARGET}
   PUBLIC "Include/*.hpp"
-  PRIVATE "Source/Common/*.cpp" "Source/Common/*.hpp"
+  PRIVATE "Source/*.cpp" "Source/*.hpp"
 )
-
-if(TARGET_OS STREQUAL "WINDOWS")
-  glob_target_sources(${TARGET} PRIVATE "Source/OS/Win32/*.cpp" "Source/OS/Win32/*.hpp")
-endif()
 
 target_include_directories(${TARGET}
   PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Include"

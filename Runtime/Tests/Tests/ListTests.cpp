@@ -1,7 +1,5 @@
 #include "Core/List.hpp"
 
-extern "C" __declspec(dllimport) void __stdcall OutputDebugStringW(const wchar_t*);
-
 #define EXPECT(Expr)                                                                                                   \
   do {                                                                                                                 \
     if (!(Expr)) {                                                                                                     \

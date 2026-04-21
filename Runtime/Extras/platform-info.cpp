@@ -1,5 +1,5 @@
-#include "Marcoses/Helpers.hpp"
-#include "Marcoses/Platform.hpp"
+#include "Macro/Utilities.hpp"
+#include "Macro/Platform.hpp"
 #include <stdio.h>
 
 #define STRINGIFY_(X) #X

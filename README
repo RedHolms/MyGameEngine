@@ -3,3 +3,5 @@ Currently there's nothing about game engine, just simple C runtime analogue, but
 
 Obviously I'm gonna steal A LOT of code from Microsoft's crt/stl and other places because I'm too
  stupid to write everything myself.
+
+For now the only supported platform is Windows/AMD64.
