@@ -1,0 +1,28 @@
+// Definitions of all available encodings
+
+// #define _ENCODING(NAME, UNIT_SIZE)
+// #define _ENCODING_ALIAS(NAME, ALIAS_TO)
+
+#ifndef _ENCODING_ALIAS
+#define _ENCODING_ALIAS_DEFINED
+#define _ENCODING_ALIAS(_NAME, _ALIAS_TO)
+#endif
+
+_ENCODING(ASCII, 1)
+_ENCODING(WCHAR, sizeof(wchar_t)) // Platform-dependent "wchar_t" encoding
+
+// Unicode
+_ENCODING(UTF8, 1)
+
+_ENCODING(UTF16_BE, 2)
+_ENCODING(UTF16_LE, 2)
+_ENCODING_ALIAS(UTF16, UTF16_LE)
+
+_ENCODING(UTF32_BE, 4)
+_ENCODING(UTF32_LE, 4)
+_ENCODING_ALIAS(UTF32, UTF32_LE)
+
+#ifdef _ENCODING_ALIAS_DEFINED
+#undef _ENCODING_ALIAS
+#undef _ENCODING_ALIAS_DEFINED
+#endif
