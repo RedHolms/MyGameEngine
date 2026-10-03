@@ -13,7 +13,7 @@ struct Win32WindowCreationParameters {
 
 } // namespace <anonymous>
 
-Win32WindowHost::Win32WindowHost(win32api::HINSTANCE classOwnerInstance, String const& className, win32api::ATOM classAtom) noexcept
+Win32WindowHost::Win32WindowHost(win32api::HINSTANCE classOwnerInstance, String const& className, win32api::ATOM classAtom)
   : m_classOwnerInstance(classOwnerInstance),
     m_className(className),
     m_classAtom(classAtom)
@@ -26,7 +26,7 @@ Win32WindowHost::~Win32WindowHost() noexcept {
   // TODO: Destroy all owned windows and destroy window class
 }
 
-std::expected<std::shared_ptr<Window>, String> Win32WindowHost::CreateWindow(String const& title, uint width, uint height) noexcept {
+std::expected<std::shared_ptr<Window>, String> Win32WindowHost::CreateWindow(String const& title, uint width, uint height) {
   Win32WindowCreationRequest request {
     .title = title,
     .width = width,
@@ -40,6 +40,9 @@ std::expected<std::shared_ptr<Window>, String> Win32WindowHost::CreateWindow(Str
     std::lock_guard windowCreationRequestQueueGuard { m_windowCreationRequestQueueMutex };
     m_windowCreationRequestQueue.emplace_back(std::move(request));
   }
+
+  // Ask windows thread to wake up
+  win32api::SetEvent(m_windowsThreadWakeUpEvent);
 
   // Wait for the request to complete
   return future.get();
@@ -121,6 +124,12 @@ void Win32WindowHost::WindowsThread_ProcessWindowMessages() {
 }
 
 win32api::LRESULT Win32WindowHost::StaticWndProc(win32api::HWND window, win32api::UINT msg, win32api::WPARAM wparam, win32api::LPARAM lparam) {
+  switch (msg) {
+
+  }
+
+
+  // Pass message to Win32
   return win32api::DefWindowProcW(window, msg, wparam, lparam);
 }
 

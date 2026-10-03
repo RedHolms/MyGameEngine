@@ -28,6 +28,7 @@ void WakeConditionVariable(PCONDITION_VARIABLE condvar) _WIN32_FUNC_ATTRS;
 
 HANDLE CreateEventW(LPSECURITY_ATTRIBUTES eventAttributes, BOOL manualReset, BOOL initialState, const wchar_t* name)
   _WIN32_FUNC_ATTRS;
+BOOL SetEvent(HANDLE event) _WIN32_FUNC_ATTRS;
 
 } // extern "C"
 } // namespace win32api

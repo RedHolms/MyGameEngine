@@ -12,6 +12,12 @@ typedef unsigned char BOOLEAN;
 
 typedef unsigned long DWORD, *PDWORD, *LPDWORD;
 
+typedef char CHAR;
+typedef short SHORT;
+typedef long LONG;
+
+typedef unsigned char BYTE;
+typedef unsigned short WORD;
 typedef unsigned int UINT, *PUINT, *LPUINT;
 
 #ifndef IS_64BIT
@@ -26,6 +32,8 @@ typedef unsigned __int64 UINT_PTR, *PUINT_PTR, *LPUINT_PTR;
 
 typedef __int64 LONG_PTR, *PLONG_PTR, *LPLONG_PTR;
 typedef unsigned __int64 ULONG_PTR, *PULONG_PTR, *LPULONG_PTR;
+
+typedef ULONG_PTR DWORD_PTR;
 
 // Any handle type
 typedef void* HANDLE;
@@ -68,11 +76,41 @@ typedef struct SECURITY_ATTRIBUTES {
 } *PSECURITY_ATTRIBUTES, *LPSECURITY_ATTRIBUTES;
 
 struct POINT {
-  long x;
-  long y;
+  LONG x;
+  LONG y;
 };
 
 // Used for creating threads and processes
 constexpr DWORD CREATE_SUSPENDED = 0x00000004;
+
+template <typename TA, typename TB>
+constexpr WORD MAKEWORD(TA a, TB b) noexcept {
+  return (WORD)(((BYTE)(((DWORD_PTR)(a)) & 0xff)) | ((WORD)((BYTE)(((DWORD_PTR)(b)) & 0xff))) << 8);
+}
+
+template <typename TA, typename TB>
+constexpr LONG MAKELONG(TA a, TB b) noexcept {
+  return (LONG)(((WORD)(((DWORD_PTR)(a)) & 0xffff)) | ((DWORD)((WORD)(((DWORD_PTR)(b)) & 0xffff))) << 16);
+}
+
+template <typename TLong>
+constexpr WORD LOWORD(TLong l) noexcept {
+  return (WORD)(((DWORD_PTR)(l)) & 0xffff);
+}
+
+template <typename TLong>
+constexpr WORD HIWORD(TLong l) noexcept {
+  return (WORD)((((DWORD_PTR)(l)) >> 16) & 0xffff);
+}
+
+template <typename TWord>
+constexpr BYTE LOBYTE(TWord w) noexcept {
+  return (BYTE)(((DWORD_PTR)(w)) & 0xff);
+}
+
+template <typename TWord>
+constexpr BYTE HIBYTE(TWord w) noexcept {
+  return (BYTE)((((DWORD_PTR)(w)) >> 8) & 0xff);
+}
 
 } // namespace win32api

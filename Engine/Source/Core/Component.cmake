@@ -1,0 +1,24 @@
+set(COMPONENT_PRIVATE_SOURCES
+  "Private/String/Encodings/ASCII.cpp"
+  "Private/String/Encodings/ASCII.hpp"
+  "Private/String/Encodings/Base.hpp"
+  "Private/String/Encodings/Encodings.cpp"
+  "Private/String/Encodings/UTF8.cpp"
+  "Private/String/Encodings/UTF8.hpp"
+  "Private/String/Encodings/UTF16.cpp"
+  "Private/String/Encodings/UTF16.hpp"
+  "Private/String/Encodings/UTF32.cpp"
+  "Private/String/Encodings/UTF32.hpp"
+  "Private/String/Encodings/WCHAR.hpp"
+  "Private/Assert.cpp"
+)
+
+set(COMPONENT_PUBLIC_SOURCES
+  "Public/MyGameEngine/Platform/PlatformInfo.hpp"
+  "Public/MyGameEngine/Assert.hpp"
+  "Public/MyGameEngine/Bytes.hpp"
+  "Public/MyGameEngine/EncodedString.hpp"
+  "Public/MyGameEngine/IntTypes.hpp"
+  "Public/MyGameEngine/MemoryUtils.hpp"
+  "Public/MyGameEngine/String.hpp"
+)

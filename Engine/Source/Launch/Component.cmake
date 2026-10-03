@@ -1,0 +1,8 @@
+set(COMPONENT_PRIVATE_SOURCES
+  "Private/WinMain.cpp"
+)
+
+set(COMPONENT_PRIVATE_DEPENDENCIES
+  Core
+  Win32API
+)

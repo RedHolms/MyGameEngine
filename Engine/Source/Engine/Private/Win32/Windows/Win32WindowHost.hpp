@@ -18,11 +18,11 @@ class Win32WindowHost final : public WindowHost {
   friend WindowHost;
 
 public:
-  Win32WindowHost(win32api::HINSTANCE classOwnerInstance, String const& className, win32api::ATOM classAtom) noexcept;
-  ~Win32WindowHost() noexcept override;
+  Win32WindowHost(win32api::HINSTANCE classOwnerInstance, String const& className, win32api::ATOM classAtom);
+  ~Win32WindowHost() override;
 
 public:
-  std::expected<std::shared_ptr<Window>, String> CreateWindow(String const& title, uint width, uint height) noexcept override;
+  std::expected<std::shared_ptr<Window>, String> CreateWindow(String const& title, uint width, uint height) override;
 
 private:
   void WindowsThreadBody();

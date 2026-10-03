@@ -1,0 +1,18 @@
+set(COMPONENT_PUBLIC_SOURCES
+  "Public/MyGameEngine/win32api/Base.hpp"
+  "Public/MyGameEngine/win32api/Console.hpp"
+  "Public/MyGameEngine/win32api/Dialogs.hpp"
+  "Public/MyGameEngine/win32api/ErrorHandling.hpp"
+  "Public/MyGameEngine/win32api/Handles.hpp"
+  "Public/MyGameEngine/win32api/Heap.hpp"
+  "Public/MyGameEngine/win32api/Libraries.hpp"
+  "Public/MyGameEngine/win32api/Process.hpp"
+  "Public/MyGameEngine/win32api/Sync.hpp"
+  "Public/MyGameEngine/win32api/Thread.hpp"
+  "Public/MyGameEngine/win32api/Time.hpp"
+  "Public/MyGameEngine/win32api/Windows.hpp"
+)
+
+set(COMPONENT_PUBLIC_DEPENDENCIES
+  Core
+)

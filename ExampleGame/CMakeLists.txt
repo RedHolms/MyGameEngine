@@ -12,6 +12,11 @@ add_link_options("/OPT:REF,ICF")
 
 add_subdirectory("../Engine" "${CMAKE_CURRENT_BINARY_DIR}/Engine")
 
-add_executable(ExampleGame WIN32)
+MyGameEngine_AddGame(
+  ExampleGame
+
+  ADDITIONAL_COMPONENTS
+    OpenGL
+)
+
 add_subdirectory("Source")
-target_link_libraries(ExampleGame PRIVATE MyGameEngine)
