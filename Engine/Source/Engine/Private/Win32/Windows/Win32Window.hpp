@@ -2,12 +2,14 @@
 
 #include <Private/Win32/Windows/Win32WindowHost.hpp>
 #include <MyGameEngine/GUI/Windows/Window.hpp>
-#include <MyGameEngine/win32api/Windows.hpp>
 #include <memory>
+
+// HWND
+#include <MyGameEngine/win32api/base.hpp>
 
 class Win32Window final : public Window {
 public:
-  Win32Window(Win32WindowHost* parent, win32api::HWND windowHandle) noexcept;
+  Win32Window(Win32WindowHost* parent, ::HWND windowHandle) noexcept;
   ~Win32Window() override;
 
 public:
@@ -18,7 +20,7 @@ public:
 
 private:
   Win32WindowHost* m_parent;
-  win32api::HWND m_handle;
+  ::HWND m_handle;
   std::function<void()> m_userCloseRequestCallback;
   std::function<void()> m_externalDestroyCallback;
 };

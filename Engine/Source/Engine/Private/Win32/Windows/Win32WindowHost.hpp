@@ -1,11 +1,13 @@
 #pragma once
 
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
-#include <MyGameEngine/win32api/Windows.hpp>
 #include <deque>
 #include <future>
 #include <mutex>
 #include <thread>
+
+// HINSTANCE, HATOM, LRESULT, HWND, UINT, WPARAM, LPARAM, HANDLE
+#include <MyGameEngine/win32api/base.hpp>
 
 struct Win32WindowCreationRequest {
   String title;
@@ -18,7 +20,7 @@ class Win32WindowHost final : public WindowHost {
   friend WindowHost;
 
 public:
-  Win32WindowHost(win32api::HINSTANCE classOwnerInstance, String const& className, win32api::ATOM classAtom);
+  Win32WindowHost(::HINSTANCE classOwnerInstance, String const& className, ::ATOM classAtom);
   ~Win32WindowHost() override;
 
 public:
@@ -31,16 +33,16 @@ private:
   void WindowsThread_ProcessWindowMessages();
 
 private:
-  static win32api::LRESULT __stdcall StaticWndProc(win32api::HWND, win32api::UINT, win32api::WPARAM, win32api::LPARAM);
+  static ::LRESULT __stdcall StaticWndProc(::HWND, ::UINT, ::WPARAM, ::LPARAM);
 
 private:
-  win32api::HINSTANCE m_classOwnerInstance;
+  ::HINSTANCE m_classOwnerInstance;
   String m_className;
-  win32api::ATOM m_classAtom;
+  ::ATOM m_classAtom;
 
   std::thread m_windowsThread;
   std::atomic_flag m_windowsThreadExitFlag;
-  win32api::HANDLE m_windowsThreadWakeUpEvent = win32api::nullhandle;
+  ::HANDLE m_windowsThreadWakeUpEvent = nullhandle;
 
   std::mutex m_windowCreationRequestQueueMutex;
   std::deque<Win32WindowCreationRequest> m_windowCreationRequestQueue;

@@ -1,4 +1,4 @@
-#include "OpenGLFactory.hpp"
+#include <Private/OpenGLFactory.hpp>
 
 OpenGLFactory::OpenGLFactory(GraphicsAPIIdentifier id)
   : m_information({
