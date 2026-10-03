@@ -22,7 +22,7 @@ Win32WindowHost::Win32WindowHost(win32api::HINSTANCE classOwnerInstance, String 
   m_windowsThread = std::thread { &Win32WindowHost::WindowsThreadBody, this };
 }
 
-Win32WindowHost::~Win32WindowHost() noexcept {
+Win32WindowHost::~Win32WindowHost() {
   // TODO: Destroy all owned windows and destroy window class
 }
 

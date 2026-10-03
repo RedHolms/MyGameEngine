@@ -1,6 +1,9 @@
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
+#include <MyGameEngine/Graphics/GraphicsAPI.hpp>
 #include <thread>
+
+bool WantToExit = false;
 
 uint GameMain() {
   auto windowHostResult = WindowHost::Create(U"ExampleGameWindowHost"_s);
@@ -15,13 +18,28 @@ uint GameMain() {
 
   std::shared_ptr<Window> window = std::move(windowResult).value();
 
-  bool wantToExit = false;
-
-  window->SetUserCloseRequestCallback([&wantToExit] {
-    wantToExit = true;
+  window->SetExternalDestroyCallback([] {
+    WantToExit = true;
   });
 
-  while (!wantToExit)
+  window->SetUserCloseRequestCallback([] {
+    WantToExit = true;
+  });
+
+  GraphicsAPIIdentifier apiToUse;
+
+  // Keep things stupid simple, use anything we can
+  GraphicsAPI::EnumerateAvailableAPIs([&](auto const& info) {
+    apiToUse = info.id;
+  });
+
+  auto graphicsApiResult = GraphicsAPI::Create(apiToUse);
+  if (!graphicsApiResult.has_value())
+    return 1;
+
+  std::unique_ptr<GraphicsAPI> graphicsApi = std::move(graphicsApiResult).value();
+
+  while (!WantToExit)
     std::this_thread::yield();
 
   return 0;
