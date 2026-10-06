@@ -116,6 +116,14 @@ function(__my_game_engine_register_component COMPONENT_NAME)
     message(DEBUG " Public dependencies NOT defined")
   endif()
 
+  if(DEFINED COMPONENT_EXTERNAL_LINK_LIBRARIES)
+    set(external_libs "${COMPONENT_EXTERNAL_LINK_LIBRARIES}")
+    message(DEBUG " External libraries: ${external_libs}")
+  else()
+    unset(external_libs)
+    message(DEBUG " External libraries NOT defined")
+  endif()
+
   if(DEFINED COMPONENT_REQUIRE_FULL_LINKAGE AND COMPONENT_REQUIRE_FULL_LINKAGE)
     set(require_full_linkage TRUE)
     message(DEBUG " Requires full linkage")
@@ -130,6 +138,7 @@ function(__my_game_engine_register_component COMPONENT_NAME)
   unset(COMPONENT_PUBLIC_SOURCES)
   unset(COMPONENT_PRIVATE_DEPENDENCIES)
   unset(COMPONENT_PUBLIC_DEPENDENCIES)
+  unset(COMPONENT_EXTERNAL_LINK_LIBRARIES)
   unset(COMPONENT_REQUIRE_FULL_LINKAGE)
 
   # These 2 may have paths relative to component dir. Make them absolute
@@ -155,6 +164,10 @@ function(__my_game_engine_register_component COMPONENT_NAME)
 
   message(DEBUG " Target type: ${target_type}")
   add_library(${component_target} ${target_type} EXCLUDE_FROM_ALL)
+
+  if(DEFINED external_libs)
+    target_link_libraries(${component_target} ${public_visibility} ${external_libs})
+  endif()
 
   ## Process private sources
   if(DEFINED private_sources)

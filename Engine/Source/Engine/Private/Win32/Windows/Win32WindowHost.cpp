@@ -1,6 +1,6 @@
-#include "Win32WindowHost.hpp"
+#include <MyGameEngine/Internal/Win32/GUI/Windows/Win32WindowHost.hpp>
 
-#include <Private/Win32/Windows/Win32Window.hpp>
+#include <MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp>
 #include <MyGameEngine/EncodedString.hpp>
 
 #include <MyGameEngine/win32api/base.hpp>

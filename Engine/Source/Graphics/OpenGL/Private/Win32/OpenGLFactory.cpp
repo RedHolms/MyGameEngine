@@ -1,5 +1,7 @@
 #include <Private/OpenGLFactory.hpp>
 
+#include <Private/Win32/Win32OpenGLAPI.hpp>
+
 OpenGLFactory::OpenGLFactory(GraphicsAPIIdentifier id)
   : m_information({
       .id = id,
@@ -14,5 +16,5 @@ GraphicsAPIInformation const& OpenGLFactory::GetInformation() {
 }
 
 std::expected<std::unique_ptr<GraphicsAPI>, String> OpenGLFactory::CreateAPI() {
-  return std::unexpected { U"Unimplemented"_s };
+  return Win32OpenGLAPI::Create(this);
 }

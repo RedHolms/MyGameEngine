@@ -1,6 +1,8 @@
 #include <Private/OpenGLFactory.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPIsRegistry.hpp>
 
+namespace {
+
 struct OpenGLRegistrarType {
   OpenGLRegistrarType() {
     auto& registry = GraphicsAPIsRegistry::GetLazyInstance();
@@ -10,4 +12,6 @@ struct OpenGLRegistrarType {
   }
 };
 
-static OpenGLRegistrarType OpenGLRegistrar {};
+[[maybe_unused]] OpenGLRegistrarType OpenGLRegistrar {};
+
+} // namespace <anonymous>

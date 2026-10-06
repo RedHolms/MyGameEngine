@@ -9,15 +9,15 @@ set(COMPONENT_PRIVATE_SOURCES
 )
 
 set(COMPONENT_PUBLIC_SOURCES
+  "Public/GL/glext.h"
+  "Public/GL/wglext.h"
   "Public/KHR/khrplatform.h"
-  "Public/MyGameEngine/Graphics/OpenGL/OpenGL.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp"
-  "Public/MyGameEngine/Graphics/OpenGL/WGL.hpp"
-  "Public/MyGameEngine/Graphics/OpenGL/WGLAPI.hpp"
 )
 
 set(COMPONENT_PRIVATE_DEPENDENCIES
+  Engine
   Graphics/.DiscoveryInterface
   Graphics/Base
 )
@@ -25,6 +25,10 @@ set(COMPONENT_PRIVATE_DEPENDENCIES
 set(COMPONENT_PUBLIC_DEPENDENCIES
   # FIXME Really bad, win32 should not be a public dependency but required for WGL.hpp
   Win32API
+)
+
+set(COMPONENT_EXTERNAL_LINK_LIBRARIES
+  Opengl32.lib
 )
 
 set(COMPONENT_REQUIRE_FULL_LINKAGE TRUE)

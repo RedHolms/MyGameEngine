@@ -1,7 +1,6 @@
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
-#include <MyGameEngine/Graphics/OpenGL/WGL.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPI.hpp>
 #include <thread>
 
@@ -47,13 +46,12 @@ uint GameMain() {
       return 1;
 
     std::unique_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
-    openGlApi->MakeContextCurrent(openGlContext.get());
 
-    // TODO Finally draw something...
+    while (!WantToExit) {
+      (void) openGlApi->MakeContextCurrent(openGlContext.get());
+      (void) openGlApi->SwapBuffers();
+    }
   }
-
-  while (!WantToExit)
-    std::this_thread::yield();
 
   return 0;
 }

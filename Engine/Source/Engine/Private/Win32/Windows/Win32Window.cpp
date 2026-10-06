@@ -1,4 +1,4 @@
-#include "Win32Window.hpp"
+#include <MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp>
 
 #include <MyGameEngine/win32api/base.hpp>
 
