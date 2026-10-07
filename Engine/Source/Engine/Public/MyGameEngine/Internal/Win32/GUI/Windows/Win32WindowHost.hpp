@@ -16,6 +16,8 @@ struct Win32WindowCreationRequest {
   std::promise<std::expected<std::shared_ptr<Window>, String>> promise;
 };
 
+class Win32Window;
+
 class Win32WindowHost final : public WindowHost {
   friend WindowHost;
 
@@ -31,6 +33,8 @@ private:
   void WindowsThread_ProcessWindowCreationRequests();
   void WindowsThread_ProcessWindowCreationRequest(Win32WindowCreationRequest& request);
   void WindowsThread_ProcessWindowMessages();
+
+  std::shared_ptr<Win32Window> ProcessWindowCreation(::HWND handle);
 
 private:
   static ::LRESULT __stdcall StaticWndProc(::HWND, ::UINT, ::WPARAM, ::LPARAM);

@@ -23,6 +23,8 @@ public: // Win32Window-specific methods
     return m_handle;
   }
 
+  LRESULT ProcessWin32Message(UINT msg, WPARAM wparam, LPARAM lparam);
+
 private:
   Win32WindowHost* m_parent;
   ::HWND m_handle;

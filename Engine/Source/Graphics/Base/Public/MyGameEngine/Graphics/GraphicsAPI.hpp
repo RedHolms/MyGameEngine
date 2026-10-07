@@ -6,18 +6,17 @@
 #include <functional>
 #include <memory>
 
-// Must be unique across all graphics APIs
+// Unique across all graphics APIs
 using GraphicsAPIIdentifier = umword_t;
 
 struct GraphicsAPIInformation {
-  GraphicsAPIIdentifier id;
   String displayName;
   // TODO: More information
 };
 
 /**
  * This class represents an interface to graphics API (DirectX, Vulkan, OpenGL, etc.). You can't do really much with
- * this abstract interface. You should dynamic_cast this class to implementation interface (i.e. OpenGLAPI) and use
+ * this abstract interface. You should dynamic_cast this class to implementation interface (e.g. OpenGLAPI) and use
  * them.
  */
 class GraphicsAPI {
@@ -29,7 +28,8 @@ public:
    * TODO: In future we might want to add "dynamic" APIs discovery, i.e. different APIs might be located in DLLs on the
    *  players' PC and we will load them dynamically on the run-time.
    */
-  static void EnumerateAvailableAPIs(std::function<void(GraphicsAPIInformation const& info)> const& callback);
+  static void EnumerateAvailableAPIs(std::function<
+    void(GraphicsAPIIdentifier id, GraphicsAPIInformation const& info)> const& callback) noexcept;
 
   /**
    * Tries to initialize specified graphics API and create an interface to it. Graphics API ID can be acquired using
@@ -38,12 +38,5 @@ public:
   static std::expected<std::unique_ptr<GraphicsAPI>, String> Create(GraphicsAPIIdentifier id);
 
 public:
-  virtual ~GraphicsAPI() = default;
-
-public:
-  /**
-   * Returns information about this graphics API. This should be the same as structure passed to callback for
-   * EnumerateAvailableAPIs()
-   */
-  virtual GraphicsAPIInformation const& GetInformation() = 0;
+  virtual ~GraphicsAPI() = 0;
 };

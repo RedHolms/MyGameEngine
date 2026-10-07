@@ -1,5 +1,4 @@
 set(COMPONENT_PRIVATE_SOURCES
-  "Private/Graphics/GraphicsAPIDiscovery.cpp"
   "Private/Win32/Windows/Win32Window.cpp"
   "Private/Win32/Windows/Win32WindowHost.cpp"
 )
@@ -12,7 +11,6 @@ set(COMPONENT_PUBLIC_SOURCES
 )
 
 set(COMPONENT_PRIVATE_DEPENDENCIES
-  Graphics/.DiscoveryInterface
   Win32API
 )
 

@@ -9,6 +9,7 @@ namespace {
 
 struct Win32WindowCreationParameters {
   Win32WindowHost* host;
+  std::shared_ptr<Win32Window> outInstance;
 };
 
 } // namespace <anonymous>
@@ -24,6 +25,15 @@ Win32WindowHost::Win32WindowHost(::HINSTANCE classOwnerInstance, String const& c
 
 Win32WindowHost::~Win32WindowHost() {
   // TODO: Destroy all owned windows and destroy window class
+
+  // Set exit flag
+  (void) m_windowsThreadExitFlag.test_and_set();
+
+  while (m_windowsThread.joinable()) {
+    // Wait until thread is dead
+    (void) ::SetEvent(m_windowsThreadWakeUpEvent);
+    m_windowsThread.join();
+  }
 }
 
 std::expected<std::shared_ptr<Window>, String> Win32WindowHost::CreateWindow(String const& title, uint width, uint height) {
@@ -111,8 +121,7 @@ void Win32WindowHost::WindowsThread_ProcessWindowCreationRequest(Win32WindowCrea
   ::ShowWindow(windowHandle, SW_SHOW);
   ::UpdateWindow(windowHandle);
 
-  auto windowInstance = std::make_shared<Win32Window>(this, windowHandle);
-  request.promise.set_value(std::move(windowInstance));
+  request.promise.set_value(std::move(parameters.outInstance));
 }
 
 void Win32WindowHost::WindowsThread_ProcessWindowMessages() {
@@ -123,11 +132,36 @@ void Win32WindowHost::WindowsThread_ProcessWindowMessages() {
   }
 }
 
-::LRESULT Win32WindowHost::StaticWndProc(::HWND window, ::UINT msg, ::WPARAM wparam, ::LPARAM lparam) {
-  switch (msg) {
+std::shared_ptr<Win32Window> Win32WindowHost::ProcessWindowCreation(::HWND handle) {
+  auto instance = std::make_shared<Win32Window>(this, handle);
 
+  // SAFE because Win32Window's destructor destroys the window and this pointer becomes inaccessible.
+  ::SetWindowLongPtrW(handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(instance.get()));
+
+  return std::move(instance);
+}
+
+::LRESULT Win32WindowHost::StaticWndProc(::HWND window, ::UINT msg, ::WPARAM wparam, ::LPARAM lparam) {
+  if (msg == WM_CREATE) {
+    // Process window creation. lpCreateParams must be a pointer to Win32WindowCreationParameters
+
+    auto createStruct = reinterpret_cast<LPCREATESTRUCTW>(lparam);
+    auto params = static_cast<Win32WindowCreationParameters*>(createStruct->lpCreateParams);
+
+    auto instancePtr = params->host->ProcessWindowCreation(window);
+    params->outInstance = std::move(instancePtr);
+
+    return 0; // success
   }
 
+  if (window != nullhandle) {
+    auto instance = reinterpret_cast<Win32Window*>(::GetWindowLongPtrW(window, GWLP_USERDATA));
+
+    if (instance != nullptr) {
+      // Pass message to window itself
+      return instance->ProcessWin32Message(msg, wparam, lparam);
+    }
+  }
 
   // Pass message to Win32
   return ::DefWindowProcW(window, msg, wparam, lparam);

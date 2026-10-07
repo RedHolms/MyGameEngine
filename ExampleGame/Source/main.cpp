@@ -30,8 +30,9 @@ uint GameMain() {
   GraphicsAPIIdentifier apiToUse;
 
   // Keep things stupid simple, use anything we can
-  GraphicsAPI::EnumerateAvailableAPIs([&](auto const& info) {
-    apiToUse = info.id;
+  GraphicsAPI::EnumerateAvailableAPIs([&](GraphicsAPIIdentifier id, GraphicsAPIInformation const& info) {
+    (void) info;
+    apiToUse = id;
   });
 
   auto graphicsApiResult = GraphicsAPI::Create(apiToUse);
@@ -45,12 +46,14 @@ uint GameMain() {
     if (!openGlContextResult.has_value())
       return 1;
 
-    std::unique_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
+    std::shared_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
 
     while (!WantToExit) {
-      (void) openGlApi->MakeContextCurrent(openGlContext.get());
+      (void) openGlApi->MakeContextCurrent(openGlContext);
       (void) openGlApi->SwapBuffers();
     }
+
+    (void) openGlApi->MakeContextCurrent(nullptr);
   }
 
   return 0;

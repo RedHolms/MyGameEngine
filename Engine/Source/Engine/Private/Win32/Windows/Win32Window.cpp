@@ -22,3 +22,18 @@ void Win32Window::SetUserCloseRequestCallback(std::function<void()>&& callback) 
 void Win32Window::SetExternalDestroyCallback(std::function<void()>&& callback) {
   m_externalDestroyCallback = std::move(callback);
 }
+
+LRESULT Win32Window::ProcessWin32Message(UINT msg, WPARAM wparam, LPARAM lparam) {
+  switch (msg) {
+    case WM_CLOSE:
+      // User wants to close the window
+
+      if (m_userCloseRequestCallback) {
+        m_userCloseRequestCallback();
+      }
+
+      return 0; // success
+  }
+
+  return ::DefWindowProcW(m_handle, msg, wparam, lparam);
+}
