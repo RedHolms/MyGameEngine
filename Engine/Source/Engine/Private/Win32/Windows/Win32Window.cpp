@@ -1,6 +1,6 @@
 #include <MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp>
 
-#include <MyGameEngine/win32api/base.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 
 Win32Window::Win32Window(Win32WindowHost* parent, ::HWND windowHandle) noexcept
   : m_parent(std::move(parent)),

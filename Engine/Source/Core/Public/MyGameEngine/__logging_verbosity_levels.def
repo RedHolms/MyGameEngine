@@ -1,0 +1,11 @@
+// Definitions of all available logging levels
+// First one is the lowest (most verbose)
+
+// #define _LOG_LEVEL(NAME, NAME_UPPERCASE, ANSI_COLOR)
+
+_LOG_LEVEL(Verbose, VERBOSE, "\x1B[95m") // Bright Magenta
+_LOG_LEVEL(Debug,   DEBUG,   "\x1B[93m") // Bright Yellow
+_LOG_LEVEL(Info,    INFO,    "\x1B[94m") // Bright Blue
+_LOG_LEVEL(Warning, WARNING, "\x1B[33m") // Yellow
+_LOG_LEVEL(Error,   ERROR,   "\x1B[91m") // Bright Red
+_LOG_LEVEL(Fatal,   FATAL,   "\x1B[31m") // Red

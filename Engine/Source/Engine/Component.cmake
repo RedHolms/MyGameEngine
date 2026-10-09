@@ -10,10 +10,6 @@ set(COMPONENT_PUBLIC_SOURCES
   "Public/MyGameEngine/Internal/Win32/GUI/Windows/Win32WindowHost.hpp"
 )
 
-set(COMPONENT_PRIVATE_DEPENDENCIES
-  Win32API
-)
-
 set(COMPONENT_PUBLIC_DEPENDENCIES
   Core
   Graphics/Base

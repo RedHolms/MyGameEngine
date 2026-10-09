@@ -2,8 +2,7 @@
 
 #include <MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp>
 
-// HGLRC, HDC
-#include <MyGameEngine/win32api/base.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 
 class Win32OpenGLContext final : public OpenGLContext {
 public:

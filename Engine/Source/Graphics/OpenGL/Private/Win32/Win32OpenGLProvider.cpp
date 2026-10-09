@@ -130,5 +130,5 @@ void* Win32OpenGLProvider::GetGlProcedureAddr(const char* name) noexcept {
   auto result = wglGetProcAddressPtr(name);
   wglMakeCurrentPtr(prevDc, prevCtx);
 
-  return result;
+  return reinterpret_cast<void*>(result);
 }

@@ -1,4 +1,5 @@
 set(COMPONENT_PRIVATE_SOURCES
+  "Private/Logging/Dispatching.cpp"
   "Private/String/Encodings/ASCII.cpp"
   "Private/String/Encodings/ASCII.hpp"
   "Private/String/Encodings/Base.hpp"
@@ -11,14 +12,24 @@ set(COMPONENT_PRIVATE_SOURCES
   "Private/String/Encodings/UTF32.hpp"
   "Private/String/Encodings/WCHAR.hpp"
   "Private/Assert.cpp"
+  "Private/ThreadInfo.cpp"
 )
 
 set(COMPONENT_PUBLIC_SOURCES
+  "Public/MyGameEngine/Logging/VerbosityColors.hpp"
   "Public/MyGameEngine/Platform/PlatformInfo.hpp"
   "Public/MyGameEngine/Assert.hpp"
   "Public/MyGameEngine/Bytes.hpp"
   "Public/MyGameEngine/EncodedString.hpp"
+  "Public/MyGameEngine/Guards.hpp"
   "Public/MyGameEngine/IntTypes.hpp"
+  "Public/MyGameEngine/Logging.hpp"
   "Public/MyGameEngine/MemoryUtils.hpp"
   "Public/MyGameEngine/String.hpp"
+  "Public/MyGameEngine/ThreadInfo.hpp"
+  "Public/MyGameEngine/Win32Inc.hpp"
+)
+
+set(COMPONENT_EXTERNAL_LINK_LIBRARIES
+  fmt::fmt
 )

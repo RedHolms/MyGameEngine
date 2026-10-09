@@ -4,8 +4,7 @@
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <memory>
 
-// HWND
-#include <MyGameEngine/win32api/base.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 
 class Win32Window final : public Window {
 public:

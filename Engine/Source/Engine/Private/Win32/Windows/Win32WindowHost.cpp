@@ -2,8 +2,7 @@
 
 #include <MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp>
 #include <MyGameEngine/EncodedString.hpp>
-
-#include <MyGameEngine/win32api/base.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 
 namespace {
 

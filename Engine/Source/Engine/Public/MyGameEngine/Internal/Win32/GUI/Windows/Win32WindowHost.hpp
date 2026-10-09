@@ -6,8 +6,7 @@
 #include <mutex>
 #include <thread>
 
-// HINSTANCE, HATOM, LRESULT, HWND, UINT, WPARAM, LPARAM, HANDLE
-#include <MyGameEngine/win32api/base.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 
 struct Win32WindowCreationRequest {
   String title;

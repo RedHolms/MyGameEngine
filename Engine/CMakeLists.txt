@@ -14,6 +14,12 @@ if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   message(FATAL_ERROR "You must use Clang compiler. Current is: ${CMAKE_CXX_COMPILER_ID}")
 endif()
 
+## Add third-party dependencies
+
+# fmtlib
+set(FMT_MASTER_PROJECT OFF)
+add_subdirectory("ThirdParty/fmtlib")
+
 # __MyGameEngine_ComponentBase is the target that defines common properties for all engine components
 add_library(__MyGameEngine_ComponentBase INTERFACE EXCLUDE_FROM_ALL)
 target_compile_features(__MyGameEngine_ComponentBase INTERFACE cxx_std_26)
@@ -174,6 +180,7 @@ function(__my_game_engine_register_component COMPONENT_NAME)
     target_link_libraries(${component_target} PRIVATE __MyGameEngine_ComponentBase)
     target_include_directories(${component_target} PRIVATE ${component_dir})
     target_sources(${component_target} PRIVATE ${private_sources})
+    target_compile_definitions(${component_target} PRIVATE MYGAMEENGINE_CURRENT_COMPONENT_NAME="${COMPONENT_NAME}")
   endif()
 
   ## Process public sources

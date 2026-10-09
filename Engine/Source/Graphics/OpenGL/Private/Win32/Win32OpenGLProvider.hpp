@@ -2,8 +2,7 @@
 
 #include <MyGameEngine/Internal/Graphics/GraphicsAPIProvider.hpp>
 
-// HMODULE, ATOM, HWND, HDC, HGLRC
-#include <MyGameEngine/win32api/base.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 
 class Win32OpenGLProvider final : public GraphicsAPIProvider {
 public:
