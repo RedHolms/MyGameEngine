@@ -44,3 +44,4 @@ constexpr auto nullhandle = nullptr;
 
 // Here we must undefine everything that breaks compilation
 #undef CreateWindow
+#undef ERROR

@@ -1,47 +1,16 @@
+#include <MyGameEngine/Console.hpp>
 #include <MyGameEngine/Logging.hpp>
-#include <MyGameEngine/Logging/Configuration.hpp>
-#include <MyGameEngine/Logging/Appenders/ConsoleAppender.hpp>
-#include <MyGameEngine/Logging/Formatters/FunctionalFormatter.hpp>
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPI.hpp>
-#include <thread>
 
 bool WantToExit = false;
 
 uint GameMain() {
-  Logging::Configure(
-    Logging::ConfigurationBuilder()
-      .BuildAppender("stdout", Logging::ConsoleAppenderBuilder().SetFile(Logging::ConsoleOutputFile::Standard))
-      .BuildAppender("stderr", Logging::ConsoleAppenderBuilder().SetFile(Logging::ConsoleOutputFile::Error))
-      .BuildFormatter("default",
-        Logging::FunctionalFormatterBuilder()
-          .SetFunction([](LoggingRecord const& record, Logging::FormattingContext const& context) -> std::string {
-            using namespace std::chrono;
+  Console::MakeSureConsolePresent();
 
-            auto sendTime = floor<microseconds>(zoned_time(current_zone(), record.timepoint).get_local_time());
-            auto prefix = fmt::format("[{:%H:%M:%S}]", sendTime);
-
-            if (context.supportsEscapeSequences) {
-              return fmt::format("\x1B[90m{}\x1B[39m {}", prefix, record.textUtf8);
-            }
-            else {
-              return fmt::format("{} {}", prefix, record.textUtf8);
-            }
-          })
-      )
-      .BeginGroup()
-        .SetCondition([](LoggingRecord const& record) -> bool { return record.verbosityLevel < VerbosityLevel::ERROR; })
-        .SetFormatter("default")
-        .AppendTo("stdout")
-      .EndGroup()
-      .BeginGroup()
-        .SetCondition([](LoggingRecord const& record) -> bool { return record.verbosityLevel >= VerbosityLevel::ERROR; })
-        .SetFormatter("default")
-        .AppendTo("stderr")
-      .EndGroup()
-  );
+  Log::Info("Starting up...");
 
   auto windowHostResult = WindowHost::Create(U"ExampleGameWindowHost"_s);
   if (!windowHostResult.has_value())

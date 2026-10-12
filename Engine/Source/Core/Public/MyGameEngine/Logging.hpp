@@ -26,8 +26,6 @@ enum class VerbosityLevel {
 
 struct LoggingRecord {
   VerbosityLevel verbosityLevel;
-  uint32_t threadId;
-  std::string threadNameUtf8;
   std::string textUtf8;
   std::string categoryUtf8;
   std::chrono::system_clock::time_point timepoint;
@@ -48,11 +46,8 @@ namespace Log {
     __forceinline NAME(fmt::format_string<ArgsT...> fmt, ArgsT&&... args,                                              \
       std::source_location const source = std::source_location::current())                                             \
     {                                                                                                                  \
-      auto const& currentThreadInfo = MyGameEngine::GetCurrentThreadInformation();                                     \
       Logging::DispatchRecord(LoggingRecord {                                                                          \
         .verbosityLevel = VerbosityLevel::NAME_UPPERCASE,                                                              \
-        .threadId = currentThreadInfo.id,                                                                              \
-        .threadNameUtf8 = currentThreadInfo.nameUtf8,                                                                  \
         .textUtf8 = fmt::format(fmt, std::forward<ArgsT>(args)...),                                                    \
         .categoryUtf8 = MYGAMEENGINE_LOGGING_TRANSLATION_UNIT_CATEGORY,                                                \
         .timepoint = std::chrono::system_clock::now(),                                                                 \

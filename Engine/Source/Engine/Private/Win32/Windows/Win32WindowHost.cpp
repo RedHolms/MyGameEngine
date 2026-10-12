@@ -1,6 +1,7 @@
 #include <MyGameEngine/Internal/Win32/GUI/Windows/Win32WindowHost.hpp>
 
 #include <MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp>
+#include <MyGameEngine/Logging.hpp>
 #include <MyGameEngine/EncodedString.hpp>
 #include <MyGameEngine/Win32Inc.hpp>
 

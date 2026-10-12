@@ -1,9 +1,4 @@
 set(COMPONENT_PRIVATE_SOURCES
-  "Private/Logging/ConsoleAppender.cpp"
-  "Private/Logging/ConsoleAppender.hpp"
-  "Private/Logging/Dispatching.cpp"
-  "Private/Logging/FunctionalFormatter.cpp"
-  "Private/Logging/FunctionalFormatter.hpp"
   "Private/String/Encodings/ASCII.cpp"
   "Private/String/Encodings/ASCII.hpp"
   "Private/String/Encodings/Base.hpp"
@@ -16,15 +11,12 @@ set(COMPONENT_PRIVATE_SOURCES
   "Private/String/Encodings/UTF32.hpp"
   "Private/String/Encodings/WCHAR.hpp"
   "Private/Assert.cpp"
+  "Private/Console.cpp"
+  "Private/Logging.cpp"
   "Private/ThreadInfo.cpp"
 )
 
 set(COMPONENT_PUBLIC_SOURCES
-  "Public/MyGameEngine/Logging/Appenders/ConsoleAppender.hpp"
-  "Public/MyGameEngine/Logging/Formatters/FunctionalFormatter.hpp"
-  "Public/MyGameEngine/Logging/Configuration.hpp"
-  "Public/MyGameEngine/Logging/IAppender.hpp"
-  "Public/MyGameEngine/Logging/IFormatter.hpp"
   "Public/MyGameEngine/Logging/VerbosityColors.hpp"
   "Public/MyGameEngine/Platform/PlatformInfo.hpp"
   "Public/MyGameEngine/Assert.hpp"
