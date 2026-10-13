@@ -1,4 +1,14 @@
-set(COMPONENT_PRIVATE_SOURCES
+MyGameEngine_DefineEngineComponent(
+  TYPE
+    COMPILABLE_STATIC
+  REQUIRE_FULL_LINKAGE
+    TRUE
+  DEPENDS_ON
+    Engine
+    Graphics/Base
+)
+
+target_sources(${TARGET} PRIVATE
   "Private/Win32/OpenGLRegistrar.cpp"
   "Private/Win32/Win32OpenGLAPI.cpp"
   "Private/Win32/Win32OpenGLAPI.hpp"
@@ -9,17 +19,10 @@ set(COMPONENT_PRIVATE_SOURCES
   "Private/OpenGLContext.cpp"
 )
 
-set(COMPONENT_PUBLIC_SOURCES
+target_sources(${TARGET} PUBLIC
   "Public/GL/glext.h"
   "Public/GL/wglext.h"
   "Public/KHR/khrplatform.h"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp"
 )
-
-set(COMPONENT_PRIVATE_DEPENDENCIES
-  Engine
-  Graphics/Base
-)
-
-set(COMPONENT_REQUIRE_FULL_LINKAGE TRUE)

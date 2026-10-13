@@ -1,4 +1,9 @@
-set(COMPONENT_PRIVATE_SOURCES
+MyGameEngine_DefineEngineComponent(
+  TYPE
+    COMPILABLE_STATIC
+)
+
+target_sources(${TARGET} PRIVATE
   "Private/String/Encodings/ASCII.cpp"
   "Private/String/Encodings/ASCII.hpp"
   "Private/String/Encodings/Base.hpp"
@@ -16,7 +21,7 @@ set(COMPONENT_PRIVATE_SOURCES
   "Private/ThreadInfo.cpp"
 )
 
-set(COMPONENT_PUBLIC_SOURCES
+target_sources(${TARGET} PUBLIC
   "Public/MyGameEngine/Logging/VerbosityColors.hpp"
   "Public/MyGameEngine/Platform/PlatformInfo.hpp"
   "Public/MyGameEngine/Assert.hpp"
@@ -32,6 +37,4 @@ set(COMPONENT_PUBLIC_SOURCES
   "Public/MyGameEngine/Win32Inc.hpp"
 )
 
-set(COMPONENT_EXTERNAL_LINK_LIBRARIES
-  fmt::fmt
-)
+target_link_libraries(${TARGET} PUBLIC fmt::fmt)

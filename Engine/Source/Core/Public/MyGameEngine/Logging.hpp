@@ -46,11 +46,12 @@ namespace Log {
     __forceinline NAME(fmt::format_string<ArgsT...> fmt, ArgsT&&... args,                                              \
       std::source_location const source = std::source_location::current())                                             \
     {                                                                                                                  \
+      auto const timepoint = std::chrono::system_clock::now();                                                         \
       Logging::DispatchRecord(LoggingRecord {                                                                          \
         .verbosityLevel = VerbosityLevel::NAME_UPPERCASE,                                                              \
         .textUtf8 = fmt::format(fmt, std::forward<ArgsT>(args)...),                                                    \
         .categoryUtf8 = MYGAMEENGINE_LOGGING_TRANSLATION_UNIT_CATEGORY,                                                \
-        .timepoint = std::chrono::system_clock::now(),                                                                 \
+        .timepoint = timepoint,                                                                                        \
         .source = source                                                                                               \
       });                                                                                                              \
     }                                                                                                                  \

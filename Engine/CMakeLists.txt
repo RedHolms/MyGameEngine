@@ -24,6 +24,8 @@ add_subdirectory("ThirdParty/fmtlib")
 add_library(__MyGameEngine_ComponentBase INTERFACE EXCLUDE_FROM_ALL)
 target_compile_features(__MyGameEngine_ComponentBase INTERFACE cxx_std_26)
 
+set(MYGAMEENGINE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "MYGAMEENGINE_BINARY_DIR")
+
 macro(__set_global NAME VALUE)
   set("${NAME}" "${VALUE}" CACHE INTERNAL "${NAME}")
 endmacro()
@@ -80,161 +82,117 @@ function(__my_game_engine_register_component COMPONENT_NAME)
 
   set(component_dir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/Source/${COMPONENT_NAME}")
 
-  if(NOT IS_DIRECTORY ${component_dir} OR NOT EXISTS ${component_dir}/Component.cmake)
+  if(NOT IS_DIRECTORY ${component_dir} OR NOT EXISTS ${component_dir}/CMakeLists.txt)
     message(FATAL_ERROR "Specified component doesn't exist: ${COMPONENT_NAME}")
   endif()
 
-  message(VERBOSE "Registering component ${COMPONENT_NAME}...")
-  message(DEBUG " Component directory: ${component_dir}")
-  message(DEBUG " Component target: ${component_target}")
+  message(VERBOSE "Entering component ${COMPONENT_NAME} directory...")
 
-  include("${component_dir}/Component.cmake")
+  string(REGEX REPLACE "[\\/]" "_" component_name_normalized "${COMPONENT_NAME}")
 
-  if(DEFINED COMPONENT_PRIVATE_SOURCES)
-    set(private_sources "${COMPONENT_PRIVATE_SOURCES}")
-    message(DEBUG " Private sources defined: ${private_sources}")
-  else()
-    unset(private_sources)
-    message(DEBUG " Private sources NOT defined")
+  set(MYGAMEENGINE_CURRENT_COMPONENT_NAME "${COMPONENT_NAME}")
+  set(TARGET "${component_target}")
+  add_subdirectory(${component_dir} "${MYGAMEENGINE_BINARY_DIR}/Components/${component_name_normalized}")
+  unset(TARGET)
+  unset(MYGAMEENGINE_CURRENT_COMPONENT_NAME)
+
+  if(NOT TARGET ${component_target})
+    message(FATAL_ERROR "CMakeLists.txt of ${COMPONENT_NAME} component did not register anything")
   endif()
+endfunction()
 
-  if(DEFINED COMPONENT_PUBLIC_SOURCES)
-    set(public_sources "${COMPONENT_PUBLIC_SOURCES}")
-    message(DEBUG " Public sources defined: ${public_sources}")
-  else()
-    unset(public_sources)
-    message(DEBUG " Public sources NOT defined")
-  endif()
+function(MyGameEngine_DefineEngineComponent)
+  set(args ${ARGV})
 
-  if(DEFINED COMPONENT_PRIVATE_DEPENDENCIES)
-    set(private_dependencies "${COMPONENT_PRIVATE_DEPENDENCIES}")
-    message(DEBUG " Private dependencies defined: ${private_dependencies}")
-  else()
-    unset(private_dependencies)
-    message(DEBUG " Private dependencies NOT defined")
-  endif()
-
-  if(DEFINED COMPONENT_PUBLIC_DEPENDENCIES)
-    set(public_dependencies "${COMPONENT_PUBLIC_DEPENDENCIES}")
-    message(DEBUG " Public dependencies defined: ${public_dependencies}")
-  else()
-    unset(public_dependencies)
-    message(DEBUG " Public dependencies NOT defined")
-  endif()
-
-  if(DEFINED COMPONENT_EXTERNAL_LINK_LIBRARIES)
-    set(external_libs "${COMPONENT_EXTERNAL_LINK_LIBRARIES}")
-    message(DEBUG " External libraries: ${external_libs}")
-  else()
-    unset(external_libs)
-    message(DEBUG " External libraries NOT defined")
-  endif()
-
-  if(DEFINED COMPONENT_REQUIRE_FULL_LINKAGE AND COMPONENT_REQUIRE_FULL_LINKAGE)
-    set(require_full_linkage TRUE)
-    message(DEBUG " Requires full linkage")
-  else()
-    set(require_full_linkage FALSE)
-    message(DEBUG " Doesn't require full linkage")
-  endif()
-
-  # Delete them in case we call this function recursively (so no pollution occurs as components are not required to set
-  # all variables)
-  unset(COMPONENT_PRIVATE_SOURCES)
-  unset(COMPONENT_PUBLIC_SOURCES)
-  unset(COMPONENT_PRIVATE_DEPENDENCIES)
-  unset(COMPONENT_PUBLIC_DEPENDENCIES)
-  unset(COMPONENT_EXTERNAL_LINK_LIBRARIES)
-  unset(COMPONENT_REQUIRE_FULL_LINKAGE)
-
-  # These 2 may have paths relative to component dir. Make them absolute
-  if(DEFINED private_sources)
-    __my_game_engine_absolutize_paths_list("${private_sources}" "${component_dir}" private_sources)
-  endif()
-
-  if(DEFINED public_sources)
-    __my_game_engine_absolutize_paths_list("${public_sources}" "${component_dir}" public_sources)
-  endif()
-
-  if(NOT DEFINED private_sources AND NOT DEFINED public_sources)
-    message(FATAL_ERROR "Component ${COMPONENT_NAME} doesn't have any sources")
-  endif()
-
-  if(DEFINED private_sources)
-    set(target_type STATIC)
-    set(public_visibility PUBLIC)
-  else()
-    set(target_type INTERFACE)
-    set(public_visibility INTERFACE)
-  endif()
-
-  message(DEBUG " Target type: ${target_type}")
-  add_library(${component_target} ${target_type} EXCLUDE_FROM_ALL)
-
-  if(DEFINED external_libs)
-    target_link_libraries(${component_target} ${public_visibility} ${external_libs})
-  endif()
-
-  ## Process private sources
-  if(DEFINED private_sources)
-    target_link_libraries(${component_target} PRIVATE __MyGameEngine_ComponentBase)
-    target_include_directories(${component_target} PRIVATE ${component_dir})
-    target_sources(${component_target} PRIVATE ${private_sources})
-    target_compile_definitions(${component_target} PRIVATE MYGAMEENGINE_CURRENT_COMPONENT_NAME="${COMPONENT_NAME}")
-  endif()
-
-  ## Process public sources
-  if(DEFINED public_sources)
-    target_include_directories(${component_target} ${public_visibility} "${component_dir}/Public")
-    target_sources(${component_target} ${public_visibility} ${public_sources})
-  endif()
-
-  ## Process private dependencies
-  if(DEFINED private_dependencies)
-    if(NOT DEFINED private_sources)
-      message(SEND_ERROR "Component ${COMPONENT_NAME} doesn't have any private sources but has private dependencies:
-        ${private_dependencies}")
-    else()
-      foreach(dependency IN LISTS private_dependencies)
-        __my_game_engine_link_component(${component_target} PRIVATE ${dependency})
-      endforeach()
+  # Throws an error if "args" is empty list. If "args" is not empty, pops the first element to "arg" variable
+  macro(_pop_arg)
+    list(LENGTH args args_len)
+    if(args_len EQUAL 0)
+      message(FATAL_ERROR "Unexpected end of arguments")
     endif()
-  endif()
+    list(POP_FRONT args arg)
+  endmacro()
 
-  ## Process public dependencies
-  if(DEFINED public_dependencies)
-    if(NOT DEFINED public_sources)
-      message(SEND_ERROR "Component ${COMPONENT_NAME} doesn't have any public sources but has public dependencies:
-        ${public_dependencies}")
+  # If "args" is empty list, only sets "has_arg" to FALSE. If "args" is not empty, sets "has_arg" to TRUE and sets "arg"
+  # to first item of "args"
+  macro(_peek_arg)
+    list(LENGTH args args_len)
+    if(args_len EQUAL 0)
+      set(has_arg FALSE)
     else()
-      foreach(dependency IN LISTS public_dependencies)
-        __my_game_engine_link_component(${component_target} ${public_visibility} ${dependency})
-      endforeach()
+      set(has_arg TRUE)
+      list(GET args 0 arg)
     endif()
+  endmacro()
+
+  set(CONTROL_WORDS "TYPE;DEPENDS_ON;REQUIRE_FULL_LINKAGE")
+
+  unset(component_type)
+  set(dependencies "")
+  set(require_full_linkage "FALSE")
+
+  macro(_ctrl_TYPE)
+    if(DEFINED component_type)
+      message(FATAL_ERROR "TYPE defined multiple times")
+    endif()
+
+    _pop_arg()
+    set(component_type "${arg}")
+  endmacro()
+
+  macro(_ctrl_DEPENDS_ON)
+    _peek_arg()
+    while(has_arg AND NOT arg IN_LIST CONTROL_WORDS)
+      _pop_arg()
+      list(APPEND dependencies "${arg}")
+      _peek_arg()
+    endwhile()
+  endmacro()
+
+  macro(_ctrl_REQUIRE_FULL_LINKAGE)
+    _pop_arg()
+    set(require_full_linkage "${arg}")
+  endmacro()
+
+  while(args)
+    list(POP_FRONT args arg)
+
+    if(NOT arg IN_LIST CONTROL_WORDS)
+      message(FATAL_ERROR "Invalid command arguments: ${arg} is unexpected")
+    endif()
+
+    cmake_language(CALL "_ctrl_${arg}")
+  endwhile()
+
+  if(NOT DEFINED component_type)
+    message(FATAL_ERROR "TYPE is not defined")
   endif()
 
-  ## Expose component information into global scope
-  if(DEFINED private_sources)
-    __set_global(MYGAMEENGINE_${COMPONENT_NAME}_HAS_PRIVATE_SOURCES 1)
-  else()
-    __set_global(MYGAMEENGINE_${COMPONENT_NAME}_HAS_PRIVATE_SOURCES 0)
+  set(can_have_private_sources TRUE)
+  set(public_vis PUBLIC)
+
+  if(component_type STREQUAL "COMPILABLE_STATIC")
+    add_library(${TARGET} STATIC EXCLUDE_FROM_ALL)
+    target_link_libraries(${TARGET} PRIVATE __MyGameEngine_ComponentBase)
+    target_compile_definitions(${TARGET} PRIVATE MYGAMEENGINE_CURRENT_COMPONENT_NAME="${MYGAMEENGINE_CURRENT_COMPONENT_NAME}")
   endif()
 
-  if(DEFINED public_sources)
-    __set_global(MYGAMEENGINE_${COMPONENT_NAME}_HAS_PUBLIC_SOURCES 1)
-  else()
-    __set_global(MYGAMEENGINE_${COMPONENT_NAME}_HAS_PUBLIC_SOURCES 0)
+  if(IS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/Public")
+    target_include_directories(${TARGET} ${public_vis} "${CMAKE_CURRENT_LIST_DIR}/Public")
   endif()
 
-  if(DEFINED private_dependencies)
-    __set_global(MYGAMEENGINE_${COMPONENT_NAME}_PRIVATE_DEPENDENCIES "${private_dependencies}")
+  if(IS_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/Private")
+    if(NOT can_have_private_sources)
+      message(FATAL_ERROR "Current component TYPE does not support private sources")
+    endif()
+    target_include_directories(${TARGET} PRIVATE "${CMAKE_CURRENT_LIST_DIR}")
   endif()
 
-  if(DEFINED public_dependencies)
-    __set_global(MYGAMEENGINE_${COMPONENT_NAME}_PUBLIC_DEPENDENCIES "${public_dependencies}")
-  endif()
+  foreach(dependency IN LISTS dependencies)
+    __my_game_engine_link_component(${TARGET} ${public_vis} ${dependency})
+  endforeach()
 
-  __set_global(MYGAMEENGINE_${COMPONENT_NAME}_REQUIRES_FULL_LINKAGE "${require_full_linkage}")
+  __set_global(MYGAMEENGINE_${MYGAMEENGINE_CURRENT_COMPONENT_NAME}_REQUIRES_FULL_LINKAGE "${require_full_linkage}")
 endfunction()
 
 function(__my_game_engine_enable_component TARGET_NAME COMPONENT_NAME REASON)
