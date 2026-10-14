@@ -1,19 +1,22 @@
 # Usage:
-#  python3 generate-opengl-headers.py <cmake binary dir>
+#  python3 generate-opengl-headers.py <cmake binary dir> <destination dir> <specification url> <target api> <target profile>
 
 import requests
 import os
 import sys
 import xml.etree.ElementTree as ET
+import urllib.parse
 from packaging.version import Version
 
-TARGET_API = "gl"
-TARGET_PROFILE = "core"
-
-print(f" Target API: {TARGET_API}")
-print(f" Target profile: {TARGET_PROFILE}")
-
 binary_dir = sys.argv[1]
+dest_dir = sys.argv[2]
+spec_xml_url = sys.argv[3]
+target_api = sys.argv[4]
+target_profile = sys.argv[5]
+
+print(f" Target API: {target_api}")
+print(f" Target profile: {target_profile}")
+
 opengl_comp_dir = os.path.join(os.path.dirname(__file__), "..")
 
 def download_file(file_path: str, url: str):
@@ -25,17 +28,21 @@ def download_file(file_path: str, url: str):
         for data in response.iter_content(block_size):
             file.write(data)
 
-gl_specs_dir = os.path.join(binary_dir, "OpenGlSpecs")
-os.makedirs(os.path.dirname(gl_specs_dir), exist_ok=True)
+print(f"{binary_dir=}")
+specs_dir = os.path.join(binary_dir, "OpenGlSpecs")
+print(f"{specs_dir=}")
+os.makedirs(specs_dir, exist_ok=True)
 
-GL_XML_URL = "https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/main/xml/gl.xml"
-gl_xml_path = os.path.join(gl_specs_dir, "gl.xml")
+spec_file_name = urllib.parse.urlparse(spec_xml_url)[2].rpartition("/")[2]
+print(f"{spec_file_name=}")
+spec_xml_path = os.path.join(specs_dir, spec_file_name)
+print(f"{spec_xml_path=}")
 
-if not os.path.exists(gl_xml_path):
-    download_file(gl_xml_path, GL_XML_URL)
+if not os.path.exists(spec_xml_path):
+    download_file(spec_xml_path, spec_xml_url)
 
-gl_xml_tree = ET.parse(gl_xml_path)
-gl_xml_root = gl_xml_tree.getroot()
+spec_xml_tree = ET.parse(spec_xml_path)
+spec_xml_root = spec_xml_tree.getroot()
 
 class InterfaceElementsCollection:
     types: set[str]
@@ -65,9 +72,9 @@ def collect_interface_elements_collection(elements: list[ET.Element]) -> Interfa
     for element in elements:
         attribs = element.attrib
 
-        if "api" in attribs and attribs.get("api") != TARGET_API:
+        if "api" in attribs and attribs.get("api") != target_api:
             continue
-        if "profile" in attribs and attribs.get("profile") != TARGET_PROFILE:
+        if "profile" in attribs and attribs.get("profile") != target_profile:
             continue
 
         def extract_name(el: ET.Element) -> str:
@@ -82,7 +89,7 @@ def collect_interface_elements_collection(elements: list[ET.Element]) -> Interfa
     return result
 
 print(f" Checking available features...")
-feature_elements = gl_xml_root.findall(".//feature")
+feature_elements = spec_xml_root.findall(".//feature")
 for feature_element in feature_elements:
     attribs = feature_element.attrib
 
@@ -92,7 +99,7 @@ for feature_element in feature_elements:
 
     assert api is not None and name is not None and number is not None
 
-    if api == TARGET_API:
+    if api == target_api:
         info = FeatureInfo()
         info.name = name
         info.number = Version(number)
@@ -107,7 +114,7 @@ enabled_features.sort(key=lambda i: i.number)
 print(f"  {len(enabled_features)} features enabled")
 
 print(f" Checking available extensions...")
-extension_elements = gl_xml_root.findall(".//extensions/extension")
+extension_elements = spec_xml_root.findall(".//extensions/extension")
 for extension_element in extension_elements:
     attribs = extension_element.attrib
 
@@ -116,7 +123,7 @@ for extension_element in extension_elements:
 
     assert name is not None and supported is not None
 
-    if TARGET_API not in supported.split("|"):
+    if target_api not in supported.split("|"):
         continue
 
     info = ExtensionInfo()
@@ -174,7 +181,7 @@ with open(types_header_path, "w+") as file:
 
     file.write("#pragma once\n")
 
-    type_elements = gl_xml_root.findall(".//types/type")
+    type_elements = spec_xml_root.findall(".//types/type")
     for type_element in type_elements:
         if type_element.text is not None:
             file.write(type_element.text)
@@ -226,7 +233,7 @@ with open(enums_header_path, "w+") as file:
 
     file.write("#pragma once\n")
 
-    enum_elements = gl_xml_root.findall(".//enums/enum")
+    enum_elements = spec_xml_root.findall(".//enums/enum")
     for enum_element in enum_elements:
         attribs = enum_element.attrib
 
@@ -244,7 +251,7 @@ os.makedirs(os.path.dirname(commands_def_file_path), exist_ok=True)
 with open(commands_def_file_path, "w+") as file:
     print(f" Generating {os.path.normpath(commands_def_file_path)}...")
 
-    command_elements = gl_xml_root.findall(".//commands/command")
+    command_elements = spec_xml_root.findall(".//commands/command")
     for command_element in command_elements:
         attribs = command_element.attrib
 

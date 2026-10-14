@@ -25,7 +25,6 @@ target_sources(${TARGET} PRIVATE
 
 target_sources(${TARGET} PUBLIC
   "Public/KHR/khrplatform.h"
-  "Public/MyGameEngine/Graphics/OpenGL/Win32/WGL.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGL.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp"
@@ -47,7 +46,13 @@ add_custom_command(
   OUTPUT
     ${GENERATED_OPENGL_HEADERS}
   COMMAND
-    ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/Build/generate-opengl-headers.py" "${CMAKE_CURRENT_BINARY_DIR}"
+    ${Python3_EXECUTABLE}
+      "${CMAKE_CURRENT_SOURCE_DIR}/Build/generate-opengl-headers.py"
+      "${CMAKE_CURRENT_BINARY_DIR}"
+      "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL"
+      "https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/main/xml/gl.xml"
+      "gl"
+      "core"
   DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/.gitignore"
     "${CMAKE_CURRENT_SOURCE_DIR}/Build/generate-opengl-headers.py"
