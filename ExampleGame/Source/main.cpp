@@ -54,11 +54,10 @@ uint GameMain() {
     std::shared_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
 
     while (!WantToExit) {
-      (void) openGlApi->MakeContextCurrent(openGlContext);
-      (void) openGlApi->SwapBuffers();
-    }
+      (void) openGlContext->MakeCurrent();
 
-    (void) openGlApi->MakeContextCurrent(nullptr);
+      (void) openGlContext->SwapBuffers();
+    }
   }
 
   return 0;

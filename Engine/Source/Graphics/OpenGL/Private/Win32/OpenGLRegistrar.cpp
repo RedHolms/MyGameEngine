@@ -1,14 +1,12 @@
-#include <Private/Win32/Win32OpenGLProvider.hpp>
+#include <Private/Win32/OpenGLFactory.hpp>
 #include <MyGameEngine/Internal/Graphics/GraphicsAPIsCatalog.hpp>
 
 namespace {
 
 struct OpenGLRegistrarType {
-  OpenGLRegistrarType() : Provider(std::make_unique<Win32OpenGLProvider>()) {
-    GraphicsAPIsCatalog::AddProvider(Provider.get());
+  OpenGLRegistrarType() {
+    GraphicsAPIsCatalog::AddProvider(&OpenGLFactory::GetLazyInstance());
   }
-
-  std::unique_ptr<Win32OpenGLProvider> Provider;
 };
 
 [[maybe_unused]] OpenGLRegistrarType OpenGLRegistrar {};

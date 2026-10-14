@@ -17,6 +17,7 @@ endif()
 ## Add third-party dependencies
 
 # fmtlib
+# Used for logging system and other formatting stuff
 set(FMT_MASTER_PROJECT OFF)
 add_subdirectory("ThirdParty/fmtlib")
 
@@ -25,6 +26,7 @@ add_library(__MyGameEngine_ComponentBase INTERFACE EXCLUDE_FROM_ALL)
 target_compile_features(__MyGameEngine_ComponentBase INTERFACE cxx_std_26)
 
 set(MYGAMEENGINE_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" CACHE INTERNAL "MYGAMEENGINE_BINARY_DIR")
+set(MYGAMEENGINE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "MYGAMEENGINE_SOURCE_DIR")
 
 macro(__set_global NAME VALUE)
   set("${NAME}" "${VALUE}" CACHE INTERNAL "${NAME}")
@@ -231,4 +233,18 @@ function(MyGameEngine_AddGame TARGET_NAME)
       __my_game_engine_enable_component(${TARGET_NAME} ${arg} "added by user")
     endif()
   endforeach()
+endfunction()
+
+# Utility function.
+# Creates custom command that will create ".gitignore" file in the target directory ignoring everything in it.
+# Custom command outputs "${DIRECTORY_PATH}/.gitignore" file
+function(MyGameEngine_MakeGeneratedDirectory DIRECTORY_PATH)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_custom_command(
+    OUTPUT "${DIRECTORY_PATH}/.gitignore"
+    COMMAND
+      ${Python3_EXECUTABLE} "${MYGAMEENGINE_SOURCE_DIR}/Build/make-generated-directory.py" "${DIRECTORY_PATH}"
+    COMMENT
+      "Making generated directory ${DIRECTORY_PATH}..."
+  )
 endfunction()

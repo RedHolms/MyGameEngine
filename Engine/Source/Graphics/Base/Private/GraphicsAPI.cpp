@@ -15,7 +15,7 @@ void GraphicsAPI::EnumerateAvailableAPIs(std::function<
 }
 
 std::expected<std::unique_ptr<GraphicsAPI>, String> GraphicsAPI::Create(GraphicsAPIIdentifier id) {
-  GraphicsAPIProvider* provider = nullptr;
+  GraphicsAPIFactory* provider = nullptr;
 
   GraphicsAPIsCatalog::EnumerateProviders([&](auto enumId, auto enumProvider) {
     if (provider != nullptr)

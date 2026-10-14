@@ -1,11 +1,17 @@
 #pragma once
 
-#include <MyGameEngine/Internal/Graphics/GraphicsAPIProvider.hpp>
+#include <MyGameEngine/Internal/Graphics/GraphicsAPIFactory.hpp>
 
 #include <MyGameEngine/Win32Inc.hpp>
 
-class Win32OpenGLProvider final : public GraphicsAPIProvider {
+class Win32OpenGLProvider final {
 public:
+  static Win32OpenGLProvider& GetLazyInstance() {
+    static Win32OpenGLProvider Instance;
+    return Instance;
+  }
+
+private:
   Win32OpenGLProvider();
   ~Win32OpenGLProvider() override;
 
