@@ -130,24 +130,24 @@ void Win32OpenGLContext::LoadFeatureLevel() {
   auto major = parseVersionPart(majorStr);
   auto minor = parseVersionPart(minorStr);
 
-  has_GL_VERSION_4_6 = ( major > 4 )                 || ( major == 4 && minor >= 6 );
-  has_GL_VERSION_4_5 = has_GL_VERSION_4_6 == GL_TRUE || ( major == 4 && minor >= 5 );
-  has_GL_VERSION_4_4 = has_GL_VERSION_4_5 == GL_TRUE || ( major == 4 && minor >= 4 );
-  has_GL_VERSION_4_3 = has_GL_VERSION_4_4 == GL_TRUE || ( major == 4 && minor >= 3 );
-  has_GL_VERSION_4_2 = has_GL_VERSION_4_3 == GL_TRUE || ( major == 4 && minor >= 2 );
-  has_GL_VERSION_4_1 = has_GL_VERSION_4_2 == GL_TRUE || ( major == 4 && minor >= 1 );
-  has_GL_VERSION_4_0 = has_GL_VERSION_4_1 == GL_TRUE || ( major == 4               );
-  has_GL_VERSION_3_3 = has_GL_VERSION_4_0 == GL_TRUE || ( major == 3 && minor >= 3 );
-  has_GL_VERSION_3_2 = has_GL_VERSION_3_3 == GL_TRUE || ( major == 3 && minor >= 2 );
-  has_GL_VERSION_3_1 = has_GL_VERSION_3_2 == GL_TRUE || ( major == 3 && minor >= 1 );
-  has_GL_VERSION_3_0 = has_GL_VERSION_3_1 == GL_TRUE || ( major == 3               );
-  has_GL_VERSION_2_1 = has_GL_VERSION_3_0 == GL_TRUE || ( major == 2 && minor >= 1 );
-  has_GL_VERSION_2_0 = has_GL_VERSION_2_1 == GL_TRUE || ( major == 2               );
-  has_GL_VERSION_1_5 = has_GL_VERSION_2_0 == GL_TRUE || ( major == 1 && minor >= 5 );
-  has_GL_VERSION_1_4 = has_GL_VERSION_1_5 == GL_TRUE || ( major == 1 && minor >= 4 );
-  has_GL_VERSION_1_3 = has_GL_VERSION_1_4 == GL_TRUE || ( major == 1 && minor >= 3 );
-  has_GL_VERSION_1_2 = has_GL_VERSION_1_3 == GL_TRUE || ( major == 1 && minor >= 2 );
-  has_GL_VERSION_1_1 = has_GL_VERSION_1_2 == GL_TRUE || ( major == 1 && minor >= 1 );
+  has_GL_VERSION_4_6 = major > 4          || (major == 4 && minor >= 6);
+  has_GL_VERSION_4_5 = has_GL_VERSION_4_6 || (major == 4 && minor >= 5);
+  has_GL_VERSION_4_4 = has_GL_VERSION_4_5 || (major == 4 && minor >= 4);
+  has_GL_VERSION_4_3 = has_GL_VERSION_4_4 || (major == 4 && minor >= 3);
+  has_GL_VERSION_4_2 = has_GL_VERSION_4_3 || (major == 4 && minor >= 2);
+  has_GL_VERSION_4_1 = has_GL_VERSION_4_2 || (major == 4 && minor >= 1);
+  has_GL_VERSION_4_0 = has_GL_VERSION_4_1 || (major == 4              );
+  has_GL_VERSION_3_3 = has_GL_VERSION_4_0 || (major == 3 && minor >= 3);
+  has_GL_VERSION_3_2 = has_GL_VERSION_3_3 || (major == 3 && minor >= 2);
+  has_GL_VERSION_3_1 = has_GL_VERSION_3_2 || (major == 3 && minor >= 1);
+  has_GL_VERSION_3_0 = has_GL_VERSION_3_1 || (major == 3              );
+  has_GL_VERSION_2_1 = has_GL_VERSION_3_0 || (major == 2 && minor >= 1);
+  has_GL_VERSION_2_0 = has_GL_VERSION_2_1 || (major == 2              );
+  has_GL_VERSION_1_5 = has_GL_VERSION_2_0 || (major == 1 && minor >= 5);
+  has_GL_VERSION_1_4 = has_GL_VERSION_1_5 || (major == 1 && minor >= 4);
+  has_GL_VERSION_1_3 = has_GL_VERSION_1_4 || (major == 1 && minor >= 3);
+  has_GL_VERSION_1_2 = has_GL_VERSION_1_3 || (major == 1 && minor >= 2);
+  has_GL_VERSION_1_1 = has_GL_VERSION_1_2 || (major == 1 && minor >= 1);
   has_GL_VERSION_1_0 = true;
 }
 
