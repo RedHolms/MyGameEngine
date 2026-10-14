@@ -1,24 +1,31 @@
 #pragma once
 
-#include <MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp>
+#include <MyGameEngine/Graphics/OpenGL/WGL/WGLContext.hpp>
+#include <string_view>
+#include <vector>
 
-#include <MyGameEngine/Win32Inc.hpp>
-
-class Win32OpenGLContext final : public OpenGLContext {
+class Win32OpenGLContext final : public WGLContext {
 public:
   Win32OpenGLContext(::HGLRC glRc, ::HDC dc);
   ~Win32OpenGLContext() override;
 
-public: // Win32OpenGLContext-specific methods
-  ::HGLRC GetGLRC() const noexcept {
-    return m_glResource;
-  }
+public:
+  std::expected<void, String> MakeCurrent() override;
+  std::expected<void, String> SwapBuffers() override;
 
-  ::HDC GetDeviceContext() const noexcept {
-    return m_deviceContext;
-  }
+  bool HasExtension(char const* extensionName) override;
+  void* GetUnknownCommandProcedure(char const* commandName) override;
+
+private:
+  void LoadCommands();
+  void LoadFeatureLevel();
+  void LoadExtensionList();
+  void LoadWGLSpecificExtensionList();
 
 private:
   ::HGLRC m_glResource;
   ::HDC m_deviceContext;
+
+  std::vector<std::string_view> m_extensionList;
+  std::vector<std::string_view> m_wglSpecificExtensionList;
 };

@@ -1,20 +1,21 @@
 #include <Private/Win32/Win32OpenGLAPI.hpp>
 
+#include <Private/Win32/WGLBootstrapper.hpp>
 #include <Private/Win32/Win32OpenGLContext.hpp>
 #include <MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp>
 #include <MyGameEngine/Win32Inc.hpp>
-#include <GL/GL.h>
-#include <GL/wglext.h>
 
-Win32OpenGLAPI::Win32OpenGLAPI(Win32OpenGLProvider* provider)
-  : m_provider(provider)
-{}
-
-Win32OpenGLAPI::~Win32OpenGLAPI() {
-  // TODO?
-}
+Win32OpenGLAPI::Win32OpenGLAPI() = default;
+Win32OpenGLAPI::~Win32OpenGLAPI() = default;
 
 std::expected<std::shared_ptr<OpenGLContext>, String> Win32OpenGLAPI::CreateContextForWindow(std::weak_ptr<Window>&& targetWindow) {
+  auto& bootstrapper = WGLBootstrapper::GetLazyInstance();
+
+  // NOTE: Probably it's redundant here because Win32OpenGLFactory does the same thing before even creating us, but
+  // let's be safe
+  if (auto result = bootstrapper.MakeSureFunctionsLoaded(); !result.has_value())
+    return std::unexpected { std::move(result).error() };
+
   auto lockedWindow = targetWindow.lock();
 
   if (!lockedWindow)
@@ -63,15 +64,18 @@ std::expected<std::shared_ptr<OpenGLContext>, String> Win32OpenGLAPI::CreateCont
     0 // Terminate list
   };
 
-  // TODO: Don't get procedures like that
+  bootstrapper.MakeDummyContextCurrent();
+
   // TODO: Check for nullptrs
-  auto wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(m_provider->GetGlProcedureAddr("wglChoosePixelFormatARB"));
-  auto wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(m_provider->GetGlProcedureAddr("wglCreateContextAttribsARB"));
+  auto wglChoosePixelFormatARB =
+    reinterpret_cast<wglChoosePixelFormatARB_t>(bootstrapper.wglGetProcAddressPtr("wglChoosePixelFormatARB"));
+  auto wglCreateContextAttribsARB =
+    reinterpret_cast<wglCreateContextAttribsARB_t>(bootstrapper.wglGetProcAddressPtr("wglCreateContextAttribsARB"));
 
   int pixelFormat;
   ::UINT numFormats;
   wglChoosePixelFormatARB(deviceContext, pixelAttribs, nullptr, 1, &pixelFormat, &numFormats);
-  ::SetPixelFormat(deviceContext, pixelFormat, &pfd);
+  bootstrapper.SetPixelFormatPtr(deviceContext, pixelFormat, &pfd);
 
   // TODO: Add ability to change these properties
   const int contextAttribs[] = {
@@ -83,44 +87,6 @@ std::expected<std::shared_ptr<OpenGLContext>, String> Win32OpenGLAPI::CreateCont
 
   ::HGLRC context = wglCreateContextAttribsARB(deviceContext, nullhandle, contextAttribs);
 
-  return std::make_unique<Win32OpenGLContext>(context, deviceContext);
-}
-
-std::expected<void, String> Win32OpenGLAPI::MakeContextCurrent(std::shared_ptr<OpenGLContext> const& contextSharedPtr) {
-  if (contextSharedPtr == nullptr) {
-    m_provider->wglMakeCurrentPtr(nullptr, nullptr);
-    m_boundContext.reset();
-    return {}; // success
-  }
-
-  if (auto win32Context = dynamic_cast<Win32OpenGLContext*>(contextSharedPtr.get())) {
-    bool success = m_provider->wglMakeCurrentPtr(win32Context->GetDeviceContext(), win32Context->GetGLRC());
-    if (!success)
-      return std::unexpected { U"wglMakeCurrent() failed"_s }; // TODO: Format win32 error
-
-    m_boundContext = std::shared_ptr<Win32OpenGLContext> { contextSharedPtr, win32Context };
-
-    return {}; // success
-  }
-  else {
-    return std::unexpected { U"Given context is not Win32 OpenGL context"_s };
-  }
-}
-
-bool Win32OpenGLAPI::HasExtension(char const* extensionId) {
-  // TODO
-  (void) extensionId;
-  return false;
-}
-
-std::expected<void, String> Win32OpenGLAPI::SwapBuffers() {
-  if (m_boundContext == nullptr)
-    return std::unexpected { U"No context bound"_s };
-
-  bool success = ::SwapBuffers(m_boundContext->GetDeviceContext());
-
-  if (!success)
-    return std::unexpected { U"::SwapBuffers() failed"_s }; // TODO: Format win32 error
-
-  return {}; // success
+  auto instance = std::make_shared<Win32OpenGLContext>(context, deviceContext);
+  return std::shared_ptr<OpenGLContext> { std::move(instance), static_cast<OpenGLContext*>(instance.get()) };
 }

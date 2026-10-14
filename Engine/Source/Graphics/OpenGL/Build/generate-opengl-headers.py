@@ -95,6 +95,14 @@ for feature_element in feature_elements:
 
     assert api is not None and name is not None and number is not None
 
+    if name == "WGL_VERSION_1_0":
+        # FIXME! A crutch
+        # WGL_VERSION_1_0 declares commands/enums defined inside wingdi.h
+        # We have 2 ways to fix this:
+        #   1. Define NOGDI and provide GDI types outselves (THE BAD ONE)
+        #   2. Add abillity to ignore specified features/extensions by passing their names to this script
+        continue
+
     if api == target_api:
         info = FeatureInfo()
         info.name = name

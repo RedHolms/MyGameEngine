@@ -55,11 +55,14 @@ uint GameMain() {
     std::shared_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
 
     if (auto wglContext = dynamic_cast<WGLContext*>(openGlContext.get())) {
-      (void) wglContext->MakeCurrent();
+      while (!WantToExit) {
+        (void) wglContext->MakeCurrent();
 
-      // Drawing code...
+        wglContext->glClearColor(0.44f, 0.33f, 0.50f, 1.00f);
+        wglContext->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      (void) wglContext->SwapBuffers();
+        (void) wglContext->SwapBuffers();
+      }
     }
   }
 

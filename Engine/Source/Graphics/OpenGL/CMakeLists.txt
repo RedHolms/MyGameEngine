@@ -11,15 +11,17 @@ MyGameEngine_DefineEngineComponent(
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 target_sources(${TARGET} PRIVATE
-  "Private/Win32/OpenGLFactory.cpp"
-  "Private/Win32/OpenGLFactory.hpp"
-  "Private/Win32/OpenGLRegistrar.cpp"
+  "Private/Win32/WGLBootstrapper.cpp"
+  "Private/Win32/WGLBootstrapper.hpp"
+  "Private/Win32/Win32OpenGLFactory.cpp"
+  "Private/Win32/Win32OpenGLFactory.hpp"
   "Private/Win32/Win32OpenGLAPI.cpp"
   "Private/Win32/Win32OpenGLAPI.hpp"
   "Private/Win32/Win32OpenGLContext.cpp"
   "Private/Win32/Win32OpenGLContext.hpp"
-  "Private/Win32/Win32OpenGLProvider.cpp"
-  "Private/Win32/Win32OpenGLProvider.hpp"
+  "Private/Win32/Win32OpenGLFactory.cpp"
+  "Private/Win32/Win32OpenGLFactory.hpp"
+  "Private/Win32/Win32OpenGLRegistrar.cpp"
   "Private/OpenGLContext.cpp"
 )
 

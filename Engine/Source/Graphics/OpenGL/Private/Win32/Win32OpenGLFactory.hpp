@@ -2,16 +2,16 @@
 
 #include <MyGameEngine/Internal/Graphics/GraphicsAPIFactory.hpp>
 
-class OpenGLFactory final : public GraphicsAPIFactory {
+class Win32OpenGLFactory final : public GraphicsAPIFactory {
 public:
-  static OpenGLFactory& GetLazyInstance() {
-    static OpenGLFactory Instance;
+  static Win32OpenGLFactory& GetLazyInstance() {
+    static Win32OpenGLFactory Instance;
     return Instance;
   }
 
 private:
-  OpenGLFactory();
-  ~OpenGLFactory() override;
+  Win32OpenGLFactory();
+  ~Win32OpenGLFactory() override;
 
 public:
   String GetDisplayName() override;
