@@ -28,9 +28,11 @@ target_sources(${TARGET} PRIVATE
 target_sources(${TARGET} PUBLIC
   "Public/KHR/khrplatform.h"
   "Public/MyGameEngine/Graphics/OpenGL/WGL/WGL.hpp"
+  "Public/MyGameEngine/Graphics/OpenGL/WGL/WGLCommandsProvider.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/WGL/WGLContext.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGL.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp"
+  "Public/MyGameEngine/Graphics/OpenGL/OpenGLCommandsProvider.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp"
 )
 

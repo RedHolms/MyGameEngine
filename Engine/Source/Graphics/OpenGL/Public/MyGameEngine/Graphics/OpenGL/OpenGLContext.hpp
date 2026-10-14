@@ -1,10 +1,11 @@
 #pragma once
 
 #include <MyGameEngine/String.hpp>
-#include <MyGameEngine/Graphics/OpenGL/OpenGL.hpp>
 #include <expected>
 
-class OpenGLContext : public OpenGLCommandsProvider {
+class OpenGLCommandsProvider;
+
+class OpenGLContext {
 public:
   virtual ~OpenGLContext() = 0;
 
@@ -18,4 +19,6 @@ public:
    * NOTE: On Windows, behaviour is undefined if this context is not current
    */
   virtual void* GetUnknownCommandProcedure(const char* commandName) = 0;
+
+  virtual OpenGLCommandsProvider* GetCommandsProvider() = 0;
 };

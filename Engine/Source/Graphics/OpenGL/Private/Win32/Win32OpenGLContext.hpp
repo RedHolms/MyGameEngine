@@ -1,10 +1,12 @@
 #pragma once
 
+#include <MyGameEngine/Graphics/OpenGL/WGL/WGLCommandsProvider.hpp>
 #include <MyGameEngine/Graphics/OpenGL/WGL/WGLContext.hpp>
+#include <MyGameEngine/Graphics/OpenGL/OpenGLCommandsProvider.hpp>
 #include <string_view>
 #include <vector>
 
-class Win32OpenGLContext final : public WGLContext {
+class Win32OpenGLContext final : public WGLContext, public OpenGLCommandsProvider, public WGLCommandsProvider {
 public:
   Win32OpenGLContext(::HGLRC glRc, ::HDC dc);
   ~Win32OpenGLContext() override;
@@ -15,6 +17,9 @@ public:
 
   bool HasExtension(char const* extensionName) override;
   void* GetUnknownCommandProcedure(char const* commandName) override;
+
+  OpenGLCommandsProvider* GetCommandsProvider() override;
+  WGLCommandsProvider* GetWGLCommandsProvider() override;
 
 private:
   void LoadCommands();

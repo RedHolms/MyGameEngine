@@ -68,6 +68,14 @@ void* Win32OpenGLContext::GetUnknownCommandProcedure(char const* commandName) {
   return reinterpret_cast<void*>(bootstrapper.wglGetProcAddressPtr(commandName));
 }
 
+OpenGLCommandsProvider* Win32OpenGLContext::GetCommandsProvider() {
+  return this;
+}
+
+WGLCommandsProvider* Win32OpenGLContext::GetWGLCommandsProvider() {
+  return this;
+}
+
 void Win32OpenGLContext::LoadCommands() {
   auto& bootstrapper = WGLBootstrapper::GetLazyInstance();
 

@@ -2,8 +2,8 @@
 #include <MyGameEngine/Logging.hpp>
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
-#include <MyGameEngine/Graphics/OpenGL/WGL/WGLContext.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
+#include <MyGameEngine/Graphics/OpenGL/OpenGLCommandsProvider.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPI.hpp>
 
 bool WantToExit = false;
@@ -53,16 +53,15 @@ uint GameMain() {
       return 1;
 
     std::shared_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
+    auto gl = openGlContext->GetCommandsProvider();
 
-    if (auto wglContext = dynamic_cast<WGLContext*>(openGlContext.get())) {
-      while (!WantToExit) {
-        (void) wglContext->MakeCurrent();
+    while (!WantToExit) {
+      (void) openGlContext->MakeCurrent();
 
-        wglContext->glClearColor(0.44f, 0.33f, 0.50f, 1.00f);
-        wglContext->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      gl->glClearColor(0.44f, 0.33f, 0.50f, 1.00f);
+      gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        (void) wglContext->SwapBuffers();
-      }
+      (void) openGlContext->SwapBuffers();
     }
   }
 
