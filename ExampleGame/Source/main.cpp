@@ -2,6 +2,7 @@
 #include <MyGameEngine/Logging.hpp>
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
+#include <MyGameEngine/Graphics/OpenGL/WGL/WGLContext.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPI.hpp>
 
@@ -53,10 +54,12 @@ uint GameMain() {
 
     std::shared_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
 
-    while (!WantToExit) {
-      (void) openGlContext->MakeCurrent();
+    if (auto wglContext = dynamic_cast<WGLContext*>(openGlContext.get())) {
+      (void) wglContext->MakeCurrent();
 
-      (void) openGlContext->SwapBuffers();
+      // Drawing code...
+
+      (void) wglContext->SwapBuffers();
     }
   }
 

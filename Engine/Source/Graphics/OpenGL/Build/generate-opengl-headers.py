@@ -28,15 +28,11 @@ def download_file(file_path: str, url: str):
         for data in response.iter_content(block_size):
             file.write(data)
 
-print(f"{binary_dir=}")
 specs_dir = os.path.join(binary_dir, "OpenGlSpecs")
-print(f"{specs_dir=}")
 os.makedirs(specs_dir, exist_ok=True)
 
 spec_file_name = urllib.parse.urlparse(spec_xml_url)[2].rpartition("/")[2]
-print(f"{spec_file_name=}")
 spec_xml_path = os.path.join(specs_dir, spec_file_name)
-print(f"{spec_xml_path=}")
 
 if not os.path.exists(spec_xml_path):
     download_file(spec_xml_path, spec_xml_url)
@@ -165,15 +161,13 @@ print(f" Total commands count: {len(required_commands)}")
 
 print(" Begin generation...")
 
-generated_root_dir = os.path.join(opengl_comp_dir, "Public", "MyGameEngine", "Generated")
-
-types_header_path = os.path.join(generated_root_dir, "OpenGL", "Types.generated.hpp")
-features_header_path = os.path.join(generated_root_dir, "OpenGL", "Features.generated.hpp")
-features_def_file_path = os.path.join(generated_root_dir, "OpenGL", "Features.generated.def")
-extensions_header_path = os.path.join(generated_root_dir, "OpenGL", "Extensions.generated.hpp")
-extensions_def_file_path = os.path.join(generated_root_dir, "OpenGL", "Extensions.generated.def")
-enums_header_path = os.path.join(generated_root_dir, "OpenGL", "Enums.generated.hpp")
-commands_def_file_path = os.path.join(generated_root_dir, "OpenGL", "Commands.generated.def")
+types_header_path = os.path.join(dest_dir, "Types.generated.hpp")
+features_header_path = os.path.join(dest_dir, "Features.generated.hpp")
+features_def_file_path = os.path.join(dest_dir, "Features.generated.def")
+extensions_header_path = os.path.join(dest_dir, "Extensions.generated.hpp")
+extensions_def_file_path = os.path.join(dest_dir, "Extensions.generated.def")
+enums_header_path = os.path.join(dest_dir, "Enums.generated.hpp")
+commands_def_file_path = os.path.join(dest_dir, "Commands.generated.def")
 
 os.makedirs(os.path.dirname(types_header_path), exist_ok=True)
 with open(types_header_path, "w+") as file:
@@ -236,6 +230,11 @@ with open(enums_header_path, "w+") as file:
     enum_elements = spec_xml_root.findall(".//enums/enum")
     for enum_element in enum_elements:
         attribs = enum_element.attrib
+
+        api = attribs.get("api")
+
+        if "api" in attribs and attribs.get("api") != target_api:
+            continue
 
         name = attribs.get("name")
         value = attribs.get("value")
