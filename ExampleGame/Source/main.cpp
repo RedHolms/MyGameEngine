@@ -29,12 +29,17 @@ void main()
 )glsl";
 
 static float vertices[] = {
-  -0.5f, -0.5f, 0.0f,
-   0.5f, -0.5f, 0.0f,
-   0.0f,  0.5f, 0.0f
+   0.5f,  0.5f, 0.0f, // top right
+   0.5f, -0.5f, 0.0f, // bottom right
+  -0.5f, -0.5f, 0.0f, // bottom left
+  -0.5f,  0.5f, 0.0f  // top left
+};
+static unsigned int indices[] = {
+  0, 1, 3,
+  1, 2, 3
 };
 
-static GLuint VAO {}, VBO {};
+static GLuint VAO {}, VBO {}, EBO {};
 static GLuint shaderProgram {};
 
 static void RenderInit(OpenGLCommandsProvider* gl) {
@@ -48,6 +53,10 @@ static void RenderInit(OpenGLCommandsProvider* gl) {
   gl->glGenBuffers(1, &VBO);
   gl->glBindBuffer(GL_ARRAY_BUFFER, VBO);
   gl->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  gl->glGenBuffers(1, &EBO);
+  gl->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   vertexShader = gl->glCreateShader(GL_VERTEX_SHADER);
   gl->glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
@@ -92,7 +101,7 @@ static void Render(OpenGLCommandsProvider* gl) {
 
   gl->glUseProgram(shaderProgram);
   gl->glBindVertexArray(VAO);
-  gl->glDrawArrays(GL_TRIANGLES, 0, 3);
+  gl->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, reinterpret_cast<void*>(0));
 }
 
 uint GameMain() {

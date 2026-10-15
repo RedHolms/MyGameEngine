@@ -1,0 +1,10 @@
+  - In the 2D plane, engine defines point { x=0, y=0 } as top-left corner of the 2D plane. Increasing X will move the
+    point right. Increasing Y will move the point bottom.
+
+  - In the 3D plane, engine defines:
+      +X is right
+      -X is left
+      +Y is forward
+      -Y is backward
+      +Z is top
+      -Z is bottom
