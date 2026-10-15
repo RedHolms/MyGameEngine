@@ -144,10 +144,21 @@ uint GameMain() {
 
     RenderInit(gl);
 
+    uint framesDrawn = 0;
+    auto nextFpsCountResetTimepoint = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+
     while (!WantToExit) {
       (void) openGlContext->MakeCurrent();
       Render(gl);
+
       (void) openGlContext->SwapBuffers();
+      ++framesDrawn;
+
+      if (std::chrono::steady_clock::now() >= nextFpsCountResetTimepoint) {
+        Log::Info("FPS: {}", framesDrawn);
+        framesDrawn = 0;
+        nextFpsCountResetTimepoint = std::chrono::steady_clock::now() + std::chrono::seconds(1);
+      }
     }
   }
 
