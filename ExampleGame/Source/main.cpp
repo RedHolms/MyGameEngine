@@ -5,6 +5,7 @@
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLCommandsProvider.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPI.hpp>
+#include <cmath>
 
 bool WantToExit = false;
 
@@ -22,9 +23,11 @@ static const char* fragmentShaderSource = R"glsl(
 #version 330 core
 out vec4 FragColor;
 
+uniform vec4 uniColor;
+
 void main()
 {
-    FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    FragColor = uniColor;
 }
 )glsl";
 
@@ -41,6 +44,7 @@ static unsigned int indices[] = {
 
 static GLuint VAO {}, VBO {}, EBO {};
 static GLuint shaderProgram {};
+static GLint uniColorLocation {};
 
 static void RenderInit(OpenGLCommandsProvider* gl) {
   int success;
@@ -93,6 +97,8 @@ static void RenderInit(OpenGLCommandsProvider* gl) {
 
   gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
   gl->glEnableVertexAttribArray(0);
+
+  uniColorLocation = gl->glGetUniformLocation(shaderProgram, "uniColor");
 }
 
 static void Render(OpenGLCommandsProvider* gl) {
@@ -101,6 +107,13 @@ static void Render(OpenGLCommandsProvider* gl) {
 
   gl->glUseProgram(shaderProgram);
   gl->glBindVertexArray(VAO);
+
+  float timeValue = (std::chrono::floor<std::chrono::milliseconds>(std::chrono::system_clock::now())
+    .time_since_epoch().count() % 1000000) / 1000.0f;
+
+  float redValue = (sin(timeValue) / 2.0f) + 0.5f;
+  gl->glUniform4f(uniColorLocation, redValue, 0.0f, 0.0f, 1.0f);
+
   gl->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, reinterpret_cast<void*>(0));
 }
 
