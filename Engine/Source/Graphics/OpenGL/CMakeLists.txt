@@ -22,7 +22,6 @@ target_sources(${TARGET} PRIVATE
   "Private/Win32/Win32OpenGLFactory.cpp"
   "Private/Win32/Win32OpenGLFactory.hpp"
   "Private/Win32/Win32OpenGLRegistrar.cpp"
-  "Private/OpenGLContext.cpp"
 )
 
 target_sources(${TARGET} PUBLIC

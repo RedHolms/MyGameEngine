@@ -1,14 +1,12 @@
 #pragma once
 
 #include <MyGameEngine/String.hpp>
+#include <MyGameEngine/Graphics/GraphicsContext.hpp>
 #include <expected>
 
 class OpenGLCommandsProvider;
 
-class OpenGLContext {
-public:
-  virtual ~OpenGLContext() = 0;
-
+class OpenGLContext : public GraphicsContext {
 public:
   virtual std::expected<void, String> MakeCurrent() = 0;
   virtual std::expected<void, String> SwapBuffers() = 0;
