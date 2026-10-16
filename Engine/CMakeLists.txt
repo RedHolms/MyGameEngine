@@ -235,6 +235,135 @@ function(MyGameEngine_AddGame TARGET_NAME)
   endforeach()
 endfunction()
 
+#
+# MyGameEngine_AddAsset(TARGET <game> ARCHIVE <name> FILE <path> [AS <archive-relative-path>] [GENERATED_BY <target>])
+#
+# Adds one file to a named archive packaged beside the game executable. Calls may be repeated to add assets or
+# archives. FILE may name a generated file, provided its producing custom command/target is part of the build graph.
+#
+function(MyGameEngine_AddAsset)
+  cmake_parse_arguments(PARSE_ARGV 0 ARG "" "TARGET;ARCHIVE;FILE;AS;GENERATED_BY" "")
+
+  if(ARG_UNPARSED_ARGUMENTS OR ARG_KEYWORDS_MISSING_VALUES OR NOT ARG_TARGET OR NOT ARG_ARCHIVE OR NOT ARG_FILE)
+    message(FATAL_ERROR "Usage: MyGameEngine_AddAsset(TARGET <game> ARCHIVE <name> FILE <path> [AS <archive-relative-path>] [GENERATED_BY <target>])")
+  endif()
+  if(NOT TARGET "${ARG_TARGET}")
+    message(FATAL_ERROR "MyGameEngine_AddAsset: target '${ARG_TARGET}' does not exist")
+  endif()
+  if(NOT ARG_ARCHIVE MATCHES "^[A-Za-z0-9_.-]+$")
+    message(FATAL_ERROR "MyGameEngine_AddAsset: ARCHIVE must be a filename stem, got '${ARG_ARCHIVE}'")
+  endif()
+
+  if(IS_ABSOLUTE "${ARG_FILE}")
+    cmake_path(NORMAL_PATH ARG_FILE OUTPUT_VARIABLE asset_source)
+  else()
+    cmake_path(ABSOLUTE_PATH ARG_FILE BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" NORMALIZE OUTPUT_VARIABLE asset_source)
+  endif()
+
+  if(ARG_AS)
+    set(asset_name "${ARG_AS}")
+  else()
+    get_filename_component(asset_name "${ARG_FILE}" NAME)
+  endif()
+  string(REPLACE "\\" "/" asset_name "${asset_name}")
+  if(asset_name STREQUAL "" OR asset_name MATCHES ";" OR IS_ABSOLUTE "${asset_name}" OR
+     asset_name MATCHES "//" OR asset_name MATCHES "/$" OR asset_name MATCHES ":")
+    message(FATAL_ERROR "MyGameEngine_AddAsset: AS must be a normalized archive-relative path, got '${asset_name}'")
+  endif()
+  string(REPLACE "/" ";" asset_name_parts "${asset_name}")
+  if("." IN_LIST asset_name_parts OR ".." IN_LIST asset_name_parts)
+    message(FATAL_ERROR "MyGameEngine_AddAsset: AS cannot contain '.' or '..' path segments, got '${asset_name}'")
+  endif()
+  if(ARG_GENERATED_BY AND NOT TARGET "${ARG_GENERATED_BY}")
+    message(FATAL_ERROR "MyGameEngine_AddAsset: GENERATED_BY target '${ARG_GENERATED_BY}' does not exist")
+  endif()
+  if(NOT ARG_GENERATED_BY)
+    set(ARG_GENERATED_BY "__MYGAMEENGINE_NO_ASSET_PRODUCER__")
+  endif()
+
+  get_property(asset_records GLOBAL PROPERTY "MYGAMEENGINE_ASSETS_${ARG_TARGET}_${ARG_ARCHIVE}")
+  list(APPEND asset_records "${asset_source}" "${asset_name}" "${ARG_GENERATED_BY}")
+  set_property(GLOBAL PROPERTY "MYGAMEENGINE_ASSETS_${ARG_TARGET}_${ARG_ARCHIVE}" "${asset_records}")
+
+  get_property(archives GLOBAL PROPERTY "MYGAMEENGINE_ASSET_ARCHIVES_${ARG_TARGET}")
+  if(NOT ARG_ARCHIVE IN_LIST archives)
+    list(APPEND archives "${ARG_ARCHIVE}")
+    set_property(GLOBAL PROPERTY "MYGAMEENGINE_ASSET_ARCHIVES_${ARG_TARGET}" "${archives}")
+  endif()
+
+  get_property(game_targets GLOBAL PROPERTY MYGAMEENGINE_ASSET_GAME_TARGETS)
+  if(NOT ARG_TARGET IN_LIST game_targets)
+    list(APPEND game_targets "${ARG_TARGET}")
+    set_property(GLOBAL PROPERTY MYGAMEENGINE_ASSET_GAME_TARGETS "${game_targets}")
+    get_target_property(target_binary_dir "${ARG_TARGET}" BINARY_DIR)
+    set_property(GLOBAL PROPERTY "MYGAMEENGINE_ASSET_OUTPUT_DIR_${ARG_TARGET}" "${target_binary_dir}")
+  endif()
+  get_property(scheduled_roots GLOBAL PROPERTY MYGAMEENGINE_ASSET_FINALIZER_SCHEDULED_ROOTS)
+  if(NOT CMAKE_SOURCE_DIR IN_LIST scheduled_roots)
+    list(APPEND scheduled_roots "${CMAKE_SOURCE_DIR}")
+    set_property(GLOBAL PROPERTY MYGAMEENGINE_ASSET_FINALIZER_SCHEDULED_ROOTS "${scheduled_roots}")
+    cmake_language(DEFER DIRECTORY "${CMAKE_SOURCE_DIR}" CALL __my_game_engine_finalize_assets)
+  endif()
+endfunction()
+
+function(__my_game_engine_finalize_assets)
+  get_property(game_targets GLOBAL PROPERTY MYGAMEENGINE_ASSET_GAME_TARGETS)
+  get_property(finalized_targets GLOBAL PROPERTY MYGAMEENGINE_ASSET_FINALIZED_TARGETS)
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  foreach(TARGET_NAME IN LISTS game_targets)
+    if(TARGET_NAME IN_LIST finalized_targets)
+      continue()
+    endif()
+    get_property(OUTPUT_BASE_DIR GLOBAL PROPERTY "MYGAMEENGINE_ASSET_OUTPUT_DIR_${TARGET_NAME}")
+    get_property(archives GLOBAL PROPERTY "MYGAMEENGINE_ASSET_ARCHIVES_${TARGET_NAME}")
+    foreach(archive IN LISTS archives)
+      get_property(asset_records GLOBAL PROPERTY "MYGAMEENGINE_ASSETS_${TARGET_NAME}_${archive}")
+      set(output "${OUTPUT_BASE_DIR}/MyGameEngineAssets/$<CONFIG>/${archive}.mga")
+      set(asset_args "")
+      set(asset_dependencies "")
+      set(producer_targets "")
+      while(asset_records)
+        list(POP_FRONT asset_records source_path)
+        list(POP_FRONT asset_records archive_path)
+        list(POP_FRONT asset_records producer_target)
+        list(APPEND asset_args --asset "${source_path}" "${archive_path}")
+        list(APPEND asset_dependencies "${source_path}")
+        if(NOT producer_target STREQUAL "__MYGAMEENGINE_NO_ASSET_PRODUCER__")
+          list(APPEND producer_targets "${producer_target}")
+        endif()
+      endwhile()
+
+      add_custom_command(
+        OUTPUT "${output}"
+        COMMAND "${Python3_EXECUTABLE}" "${MYGAMEENGINE_SOURCE_DIR}/Build/pack-assets.py"
+          --output "${output}" ${asset_args}
+        DEPENDS "${MYGAMEENGINE_SOURCE_DIR}/Build/pack-assets.py" ${asset_dependencies}
+        COMMENT "Packing ${archive}.mga for ${TARGET_NAME}"
+        VERBATIM
+      )
+      set(asset_target "${TARGET_NAME}_assets_${archive}")
+      add_custom_target("${asset_target}" DEPENDS "${output}")
+      foreach(producer_target IN LISTS producer_targets)
+        add_dependencies("${asset_target}" "${producer_target}")
+      endforeach()
+
+      # This always-run copy target handles generators where order-only dependencies do not rerun link post-build
+      # events when an asset changes. The output directory is created before the executable is linked.
+      set(copy_target "${TARGET_NAME}_copy_assets_${archive}")
+      add_custom_target("${copy_target}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+        COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${output}" "$<TARGET_FILE_DIR:${TARGET_NAME}>/${archive}.mga"
+        COMMENT "Copying ${archive}.mga beside ${TARGET_NAME}"
+        VERBATIM
+      )
+      add_dependencies("${copy_target}" "${asset_target}")
+      add_dependencies("${TARGET_NAME}" "${copy_target}")
+    endforeach()
+    list(APPEND finalized_targets "${TARGET_NAME}")
+    set_property(GLOBAL PROPERTY MYGAMEENGINE_ASSET_FINALIZED_TARGETS "${finalized_targets}")
+  endforeach()
+endfunction()
+
 # Utility function.
 # Creates custom command that will create ".gitignore" file in the target directory ignoring everything in it.
 # Custom command outputs "${DIRECTORY_PATH}/.gitignore" file

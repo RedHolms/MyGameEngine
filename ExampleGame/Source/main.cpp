@@ -1,11 +1,15 @@
 #include <MyGameEngine/Console.hpp>
 #include <MyGameEngine/Logging.hpp>
+#include <MyGameEngine/Assets/AssetArchive.hpp>
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLCommandsProvider.hpp>
 #include <MyGameEngine/Graphics/GraphicsAPI.hpp>
+#include <MyGameEngine/Win32Inc.hpp>
 #include <cmath>
+#include <array>
+#include <filesystem>
 
 bool WantToExit = false;
 
@@ -121,6 +125,24 @@ uint GameMain() {
   Console::MakeSureConsolePresent();
 
   Log::Info("Starting up...");
+
+  std::array<wchar_t, 32768> executablePathBuffer {};
+  DWORD const executablePathLength = ::GetModuleFileNameW(nullptr, executablePathBuffer.data(),
+    static_cast<DWORD>(executablePathBuffer.size()));
+  if (executablePathLength == 0 || executablePathLength >= executablePathBuffer.size()) {
+    Log::Error("Unable to locate the executable directory for game assets");
+    return 1;
+  }
+
+  AssetManager assets;
+  auto mountResult = assets.MountArchive(
+    std::filesystem::path(executablePathBuffer.data()).parent_path() / "game.mga");
+  if (!mountResult) {
+    Log::Error("Unable to load game asset archive: {}", mountResult.error());
+    return 1;
+  }
+  if (auto welcome = assets.Find("docs/welcome.txt"))
+    Log::Info("Loaded packaged welcome asset ({} bytes)", welcome->GetSize());
 
   auto windowHostResult = WindowHost::Create(U"ExampleGameWindowHost"_s);
   if (!windowHostResult.has_value())
