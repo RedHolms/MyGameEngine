@@ -1,16 +1,17 @@
-MyGameEngine_DefineEngineComponent(
-  TYPE
-    COMPILABLE_STATIC
-  REQUIRE_FULL_LINKAGE
-    TRUE
-  DEPENDS_ON
-    Engine
-    Graphics/Base
-)
+add_dependency_component(Engine)
+add_dependency_component(Graphics/Base)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-target_sources(${TARGET} PRIVATE
+add_library(MyGameEngine_Graphics_OpenGL STATIC)
+
+add_library(MyGameEngine_Graphics_OpenGL_WholeArchive INTERFACE)
+target_link_libraries(MyGameEngine_Graphics_OpenGL_WholeArchive INTERFACE
+  $<LINK_LIBRARY:WHOLE_ARCHIVE,MyGameEngine_Graphics_OpenGL>)
+
+add_library(MyGameEngine::Graphics::OpenGL ALIAS MyGameEngine_Graphics_OpenGL_WholeArchive)
+
+target_sources(MyGameEngine_Graphics_OpenGL PRIVATE
   "Private/Win32/WGLBootstrapper.cpp"
   "Private/Win32/WGLBootstrapper.hpp"
   "Private/Win32/Win32OpenGLFactory.cpp"
@@ -24,7 +25,7 @@ target_sources(${TARGET} PRIVATE
   "Private/Win32/Win32OpenGLRegistrar.cpp"
 )
 
-target_sources(${TARGET} PUBLIC
+target_sources(MyGameEngine_Graphics_OpenGL PUBLIC
   "Public/KHR/khrplatform.h"
   "Public/MyGameEngine/Graphics/OpenGL/WGL/WGL.hpp"
   "Public/MyGameEngine/Graphics/OpenGL/WGL/WGLCommandsProvider.hpp"
@@ -35,26 +36,39 @@ target_sources(${TARGET} PUBLIC
   "Public/MyGameEngine/Graphics/OpenGL/OpenGLContext.hpp"
 )
 
-MyGameEngine_MakeGeneratedDirectory("${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated")
+target_include_directories(MyGameEngine_Graphics_OpenGL
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Public"
+)
+
+target_compile_features(MyGameEngine_Graphics_OpenGL PUBLIC cxx_std_26)
+
+target_link_libraries(MyGameEngine_Graphics_OpenGL PUBLIC
+  MyGameEngine
+  MyGameEngine::Graphics::Base
+)
+
+set(GENERATED_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated")
+_mge_touch_generated_directory("${GENERATED_ROOT}")
 
 set(GENERATED_OPENGL_HEADERS
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Commands.generated.def"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Enums.generated.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Extensions.generated.def"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Extensions.generated.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Features.generated.def"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Features.generated.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/Types.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/Commands.generated.def"
+  "${GENERATED_ROOT}/OpenGL/Enums.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/Extensions.generated.def"
+  "${GENERATED_ROOT}/OpenGL/Extensions.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/Features.generated.def"
+  "${GENERATED_ROOT}/OpenGL/Features.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/Types.generated.hpp"
 )
 
 set(GENERATED_WGL_HEADERS
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Commands.generated.def"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Enums.generated.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Extensions.generated.def"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Extensions.generated.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Features.generated.def"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Features.generated.hpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/OpenGL/WGL/Types.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/WGL/Commands.generated.def"
+  "${GENERATED_ROOT}/OpenGL/WGL/Enums.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/WGL/Extensions.generated.def"
+  "${GENERATED_ROOT}/OpenGL/WGL/Extensions.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/WGL/Features.generated.def"
+  "${GENERATED_ROOT}/OpenGL/WGL/Features.generated.hpp"
+  "${GENERATED_ROOT}/OpenGL/WGL/Types.generated.hpp"
 )
 
 add_custom_command(
@@ -69,7 +83,7 @@ add_custom_command(
       "gl"
       "core"
   DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/.gitignore"
+    "${GENERATED_ROOT}/.gitignore"
     "${CMAKE_CURRENT_SOURCE_DIR}/Build/generate-opengl-headers.py"
   COMMENT
     "Generating OpenGL headers..."
@@ -87,11 +101,16 @@ add_custom_command(
       "wgl"
       "core" # WGL doesn't have profiles but let's specify "core" just in case
   DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated/.gitignore"
+    "${GENERATED_ROOT}/.gitignore"
     "${CMAKE_CURRENT_SOURCE_DIR}/Build/generate-opengl-headers.py"
   COMMENT
     "Generating WGL headers..."
 )
 
-add_custom_target(MyGameEngine_GenerateOpenGlHeaders DEPENDS ${GENERATED_OPENGL_HEADERS} ${GENERATED_WGL_HEADERS})
-add_dependencies(${TARGET} MyGameEngine_GenerateOpenGlHeaders)
+add_custom_target(MyGameEngine_GenerateOpenGLHeaders DEPENDS ${GENERATED_OPENGL_HEADERS})
+add_custom_target(MyGameEngine_GenerateWGLHeaders DEPENDS ${GENERATED_WGL_HEADERS})
+
+add_dependencies(MyGameEngine_Graphics_OpenGL
+  MyGameEngine_GenerateOpenGLHeaders
+  MyGameEngine_GenerateWGLHeaders
+)

@@ -1,19 +1,28 @@
-MyGameEngine_DefineEngineComponent(
-  TYPE
-    COMPILABLE_STATIC
-  DEPENDS_ON
-    Core
-    Graphics/Base
-)
+add_dependency_component(Core)
+add_dependency_component(Graphics/Base)
 
-target_sources(${TARGET} PRIVATE
+add_library(MyGameEngine STATIC)
+
+target_sources(MyGameEngine PRIVATE
   "Private/Win32/Windows/Win32Window.cpp"
   "Private/Win32/Windows/Win32WindowHost.cpp"
 )
 
-target_sources(${TARGET} PUBLIC
+target_sources(MyGameEngine PUBLIC
   "Public/MyGameEngine/GUI/Windows/Window.hpp"
   "Public/MyGameEngine/GUI/Windows/WindowHost.hpp"
   "Public/MyGameEngine/Internal/Win32/GUI/Windows/Win32Window.hpp"
   "Public/MyGameEngine/Internal/Win32/GUI/Windows/Win32WindowHost.hpp"
+)
+
+target_include_directories(MyGameEngine
+  PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Public"
+)
+
+target_compile_features(MyGameEngine PUBLIC cxx_std_26)
+
+target_link_libraries(MyGameEngine PUBLIC
+  MyGameEngine::Core
+  MyGameEngine::Graphics::Base
 )
