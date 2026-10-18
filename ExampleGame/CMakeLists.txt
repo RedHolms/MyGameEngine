@@ -34,10 +34,9 @@ target_sources(ExampleGameExecutable PRIVATE
 # Remove all unused symbols from result binary
 target_link_options(ExampleGameExecutable PRIVATE "/OPT:REF,ICF")
 
-## Add assets to the game
-#add_game_assets(ExampleGame
-#  ASSET "Shaders/hello-triangle.frag"
-#    FROM FILE "Assets/Shaders/hello-triangle.frag"
-#  ASSET "Shaders/hello-triangle.vert"
-#    FROM FILE "Assets/Shaders/hello-triangle.vert"
-#)
+# Add assets to the game
+add_game_assets(ExampleGame
+  ASSET "Shaders/hello-triangle.frag" FROM FILE "Assets/Shaders/hello-triangle.frag"
+  ASSET "Shaders/hello-triangle.vert" FROM FILE "Assets/Shaders/hello-triangle.vert"
+  ASSET "Textures/dummy.png"          FROM FILE "Assets/Textures/dummy.png"
+)

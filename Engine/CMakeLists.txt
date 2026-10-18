@@ -178,3 +178,63 @@ function(add_game_executable TARGET_NAME)
 
   add_dependencies("${arg_GAME}" "${TARGET_NAME}")
 endfunction()
+
+#
+# add_game_assets(<game-name> <archive-name>
+#   {ASSET <asset-name> FROM
+#     {FILE <file-path>}
+#   } ...
+# )
+#
+# Function adds a new archive called <archive-name> to the game called <game-name>. This archive will contain specified
+# assets. <archive-name> must be a valid file name. <asset-name> can be any string. In the release bundle, file named
+# "<archive-name>.game-archive" will be created in the game files. For now, the only way to add assets is importing them
+# from files on the dev's PC.
+#
+function(add_game_assets_archive GAME_NAME ARCHIVE_NAME)
+  set(args ${ARGN})
+  list(LENGTH args args_left)
+
+  macro(pop_arg)
+    if(args_left GREATER 0)
+      set(has_arg TRUE)
+      list(POP_FRONT args arg)
+      math(EXPR args_left "${args_left}-1")
+    else()
+      set(has_arg FALSE)
+    endif()
+  endmacro()
+
+  macro(pop_keyword)
+    set(possible_variants ${ARGV})
+    pop_arg()
+    if(NOT has_arg OR NOT arg IN_LIST possible_variants)
+      message(FATAL_ERROR "Expected one of: ${possible_variants}")
+    endif()
+  endmacro()
+
+  cmake_path()
+
+  while(args_left GREATER 0)
+    pop_keyword(ASSET)
+
+    pop_arg()
+    if(NOT has_arg)
+      message(FATAL_ERROR "Asset name expected")
+    endif()
+
+    set(asset_name "${arg}")
+
+    pop_keyword(FROM)
+    pop_keyword(FILE)
+
+    pop_arg()
+    if(NOT has_arg)
+      message(FATAL_ERROR "Asset file path expected")
+    endif()
+
+    cmake_path(ABSOLUTE_PATH arg NORMALIZE OUTPUT_VARIABLE asset_file_path)
+
+
+  endwhile()
+endfunction()
