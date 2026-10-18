@@ -213,8 +213,6 @@ function(add_game_assets_archive GAME_NAME ARCHIVE_NAME)
     endif()
   endmacro()
 
-  cmake_path()
-
   while(args_left GREATER 0)
     pop_keyword(ASSET)
 

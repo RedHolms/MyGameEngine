@@ -1,5 +1,4 @@
 add_dependency_component(Engine)
-add_dependency_component(Graphics/Base)
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
@@ -45,7 +44,6 @@ target_compile_features(MyGameEngine_Graphics_OpenGL PUBLIC cxx_std_26)
 
 target_link_libraries(MyGameEngine_Graphics_OpenGL PUBLIC
   MyGameEngine
-  MyGameEngine::Graphics::Base
 )
 
 set(GENERATED_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated")
