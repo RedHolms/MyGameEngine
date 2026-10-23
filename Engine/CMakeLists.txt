@@ -133,6 +133,9 @@ function(add_game GAME_NAME)
   set_target_properties("${GAME_NAME}" PROPERTIES
     IS_GAME TRUE
   )
+
+  add_custom_target("${GAME_NAME}_Assets")
+  add_dependencies("${GAME_NAME}" "${GAME_NAME}_Assets")
 endfunction()
 
 #
@@ -188,7 +191,7 @@ endfunction()
 #
 # Function adds a new archive called <archive-name> to the game called <game-name>. This archive will contain specified
 # assets. <archive-name> must be a valid file name. <asset-name> can be any string. In the release bundle, file named
-# "<archive-name>.game-archive" will be created in the game files. For now, the only way to add assets is importing them
+# "<archive-name>.gamefiles" will be created in the game files. For now, the only way to add assets is importing them
 # from files on the dev's PC.
 #
 function(add_game_assets_archive GAME_NAME ARCHIVE_NAME)
@@ -213,6 +216,21 @@ function(add_game_assets_archive GAME_NAME ARCHIVE_NAME)
     endif()
   endmacro()
 
+  set(archive_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/${GAME_NAME}/assetsbuild/${ARCHIVE_NAME}")
+  file(MAKE_DIRECTORY "${archive_bin_dir}")
+
+  set(archive_build_cmd_dependencies "")
+
+  set(archive_def "{}")
+
+  string(JSON encoded STRING_ENCODE "${GAME_NAME}")
+  string(JSON archive_def SET "${archive_def}" "game-name" "${encoded}")
+
+  string(JSON encoded STRING_ENCODE "${ARCHIVE_NAME}")
+  string(JSON archive_def SET "${archive_def}" "archive-name" "${encoded}")
+
+  set(assets_list "[]")
+
   while(args_left GREATER 0)
     pop_keyword(ASSET)
 
@@ -232,7 +250,68 @@ function(add_game_assets_archive GAME_NAME ARCHIVE_NAME)
     endif()
 
     cmake_path(ABSOLUTE_PATH arg NORMALIZE OUTPUT_VARIABLE asset_file_path)
+    cmake_path(NATIVE_PATH asset_file_path NORMALIZE asset_file_path)
 
+    list(APPEND archive_build_cmd_dependencies "${asset_file_path}")
 
+    set(asset_def "{}")
+
+    string(JSON encoded STRING_ENCODE "${asset_name}")
+    string(JSON asset_def SET "${asset_def}" "name" "${encoded}")
+
+    string(JSON asset_def SET "${asset_def}" "source" "\"file\"")
+
+    string(JSON encoded STRING_ENCODE "${asset_file_path}")
+    string(JSON asset_def SET "${asset_def}" "file-path" "${encoded}")
+
+    string(JSON assets_list SET "${assets_list}" 99999999 "${asset_def}")
   endwhile()
+
+  string(JSON archive_def SET "${archive_def}" "assets" "${assets_list}")
+
+  set(def_file_path "${archive_bin_dir}/definition.json")
+  set(temp_def_file_path "${archive_bin_dir}/definition.json.tmp")
+
+  file(WRITE "${temp_def_file_path}" "${archive_def}")
+  # Wont touch the file if it's the same so we won't repack the archive after each cmake reconfiguration
+  configure_file("${temp_def_file_path}" "${def_file_path}" COPYONLY)
+
+  set(result_archive_path "${archive_bin_dir}/result.gamefiles")
+
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_custom_command(
+    OUTPUT "${result_archive_path}"
+    COMMAND
+      ${Python3_EXECUTABLE}
+        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/Build/AssetsPak/generate-assets-archive.py"
+        "${result_archive_path}"
+        "${def_file_path}"
+    DEPENDS
+      ${archive_build_cmd_dependencies}
+      "${def_file_path}"
+    COMMENT
+      "Packing assets to the archive \"${ARCHIVE_NAME}\" (game: ${GAME_NAME})..."
+  )
+
+  add_custom_target("${GAME_NAME}_BuildArchive_${ARCHIVE_NAME}" DEPENDS "${result_archive_path}")
+  add_dependencies("${GAME_NAME}_Assets" "${GAME_NAME}_BuildArchive_${ARCHIVE_NAME}")
+
+  # FIXME FIXME FIXME!!!
+  # For now let's just copy the archive to the primary executable. Should be changed once we figure out a proper
+  # directory structure for result game bundle.
+
+  get_target_property(primary_executable_target "${GAME_NAME}" GAME_PRIMARY_EXECUTABLE)
+
+  # FIXME: Make it so it doesn't run EACH fking time
+  add_custom_command(
+    TARGET "${GAME_NAME}"
+    POST_BUILD
+    COMMAND
+      ${CMAKE_COMMAND} -E copy
+        "${result_archive_path}"
+        "$<TARGET_FILE_DIR:${primary_executable_target}>/${ARCHIVE_NAME}.gamefiles"
+    COMMAND_EXPAND_LISTS
+    COMMENT
+      "Copying assets (\"${ARCHIVE_NAME}\") to the primary game executable..."
+  )
 endfunction()

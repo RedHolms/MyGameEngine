@@ -1,0 +1,93 @@
+Description of .gamefiles file format
+
+Each .gamefiles file begins with 4 magic bytes (format signature):
+
+    BYTES (HEX)                                       ASCII REPRESENTATION
+    41 34 50 46                                       A4PF
+
+This signature is an acronym for:
+
+  Archive For Poopy Files
+
+Right after magic bytes, archive header is located. Header format may vary between format version. Thus, the first byte
+in the header determines format version. The latest version at the time of writing is 1.
+
+From now on structure for version 1 will be described.
+
+Header can be represented with C-like structure pseudo definition that looks like that:
+
+    struct a4pf_v1_header {
+      // Always 1 in the current version
+      uint8   const format_version = 1;
+
+      // Count of files inside the archive
+      uint32        files_count;
+
+      // Offset (IN BYTES, STARTING FROM THE BEGINNING OF THE FILE) of the strings table
+      uint64        strigns_table_offset;
+    };
+
+File description can be represented with C-like structure pseudo definition that looks like that:
+
+    struct a4pf_v1_file_description {
+      // Index of the string (inside the strings table) containing name of the file
+      uint32        file_name_string_index;
+
+      // Size (IN BYTES) of the file's content
+      uint64        file_content_size;
+
+      // Offset (IN BYTES, STARTING FROM THE BEGINNING OF THE FILE) of the file's content
+      uint64        file_begin;
+    };
+
+Each file must have a unique name
+
+File descriptions **MUST** be SORTED in ascending direction. This is required so we can use binary search algorithms.
+Note that files' CONTENTS are not required to be sorted.
+
+Let's say we have 2 files: A and B. File names are decoded to UTF32. These 2 files must be compared with each other like
+that:
+
+    enum comparison_result {
+      LESS,
+      EQUAL,
+      GREATER
+    }
+
+    function compare_files(A: a4pf_v1_file, B: a4pf_v1_file) -> comparison_result {
+      // Both are arrays of UTF-32 codepoints
+      let a_name: uint32[] = A.name;
+      let b_name: uint32[] = B.name;
+
+      let a_length = a_name.length;
+      let b_length = b_name.length;
+
+      let min_length = a_length < b_length ? a_length : b_length;
+      for (let i = 0; i < min_length; ++i) {
+        let diff = cast<int32>(a_name[i]) - cast<int32>(b_name[i]);
+        if (diff != 0) {
+          return diff < 0 ? LESS : GREATER;
+        }
+      }
+
+      if (a_length == b_length)
+        return EQUAL;
+
+      return a_length < b_length ? LESS : GREATER;
+    }
+
+
+Strings table may be located anywhere in the file, but the recommended way is to put it at the end of the file.
+
+Strings table can be represented with C-like structure pseudo definition that looks like that:
+
+    struct a4pf_v1_strings_table {
+      uint32        entries_count;
+      a4pf_v1_strings_table_entry entries[entries_count];
+    };
+
+    struct a4pf_v1_strings_table_entry {
+      // IN BYTES
+      uint32        string_length;
+      char8_t       string_utf8_data[string_length];
+    };
