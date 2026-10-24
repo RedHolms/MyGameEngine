@@ -46,6 +46,7 @@ target_link_libraries(MyGameEngine_Graphics_OpenGL PUBLIC
   MyGameEngine
 )
 
+# FIXME: Put this inside binary dir so parallel configurations doesn't conflict
 set(GENERATED_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/Public/MyGameEngine/Generated")
 _mge_touch_generated_directory("${GENERATED_ROOT}")
 
