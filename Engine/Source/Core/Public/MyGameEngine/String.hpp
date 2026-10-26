@@ -2,6 +2,7 @@
 
 #include <MyGameEngine/IntTypes.hpp>
 #include <MyGameEngine/MemoryUtils.hpp>
+#include <type_traits>
 #include <stdexcept>
 
 class EncodedString;
@@ -106,6 +107,18 @@ public:
 
   [[nodiscard]] constexpr size_t GetCapacity() const noexcept {
     return m_capacity;
+  }
+
+  [[nodiscard]] constexpr char32_t* GetBufferUnsafe() noexcept {
+    return m_buffer;
+  }
+
+  [[nodiscard]] constexpr const char32_t* GetBufferUnsafe() const noexcept {
+    return m_buffer;
+  }
+
+  [[nodiscard]] constexpr bool IsBufferOwned() const noexcept {
+    return m_capacity != 0;
   }
 
   [[nodiscard]] constexpr Iterator begin() noexcept;
@@ -702,3 +715,22 @@ constexpr char32_t const* String::_IteratorIndex(index_t index) const {
     throw std::out_of_range("iterator of String is out of range");
   return m_buffer + index;
 }
+
+template <>
+struct std::hash<String> {
+  constexpr size_t operator()(String const& string) const noexcept {
+    constexpr size_t BASE = 14695981039346656037ULL;
+    constexpr size_t PRIME = 1099511628211ULL;
+
+    uint8 const* data = reinterpret_cast<uint8 const*>(string.GetBufferUnsafe());
+    size_t size = string.GetLength() * sizeof(char32_t);
+
+    size_t value = BASE;
+    for (size_t i = 0; i < size; ++i) {
+      value ^= static_cast<size_t>(data[i]);
+      value *= PRIME;
+    }
+
+    return value;
+  }
+};
