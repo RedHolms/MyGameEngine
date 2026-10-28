@@ -30,6 +30,7 @@ target_sources(MyGameEngine_Core PUBLIC
   "Public/MyGameEngine/IntTypes.hpp"
   "Public/MyGameEngine/Logging.hpp"
   "Public/MyGameEngine/MemoryUtils.hpp"
+  "Public/MyGameEngine/PImpl.hpp"
   "Public/MyGameEngine/String.hpp"
   "Public/MyGameEngine/ThreadInfo.hpp"
   "Public/MyGameEngine/Win32Inc.hpp"
