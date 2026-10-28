@@ -9,7 +9,7 @@
 #include <MyGameEngine/Graphics/OpenGL/OpenGL.hpp>
 #include <MyGameEngine/Win32Inc.hpp>
 
-#define GL_APIENTRY KHRONOS_APIENTRY
+#define WGL_APIENTRY KHRONOS_APIENTRY
 
 // Defines WGL types
 #include <MyGameEngine/Generated/OpenGL/WGL/Types.generated.hpp>
@@ -23,7 +23,7 @@
 #include <MyGameEngine/Generated/OpenGL/WGL/Enums.generated.hpp>
 
 #define _COMMAND(NAME, RETURN_TYPE, ...) \
-  using NAME ## _t = RETURN_TYPE(GL_APIENTRY*)(__VA_ARGS__);
+  using NAME ## _t = RETURN_TYPE(WGL_APIENTRY*)(__VA_ARGS__);
 #include <MyGameEngine/Generated/OpenGL/WGL/Commands.generated.def>
 #undef _COMMAND
 
