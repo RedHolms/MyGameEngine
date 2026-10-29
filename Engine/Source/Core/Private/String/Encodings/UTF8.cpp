@@ -83,7 +83,6 @@ String Utf8_EncodingFunctions::Decode(Bytes const& bytes) noexcept {
   for (size_t i = 0; i < bytes.GetSize() && rawString[i]; ++i) {
     switch (_utf8_decode_step(&state, &codepoint, rawString[i])) {
       case ACCEPT:
-        ++i;
         result.Append(codepoint);
         codepoint = state = 0;
         break;
@@ -91,7 +90,6 @@ String Utf8_EncodingFunctions::Decode(Bytes const& bytes) noexcept {
         if (!rawString[i])
           break;
 
-        ++i;
         result.Append(0xFFFD);
         codepoint = state = 0;
         break;

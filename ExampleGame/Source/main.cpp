@@ -1,5 +1,6 @@
 #include <MyGameEngine/Console.hpp>
 #include <MyGameEngine/Logging.hpp>
+#include <MyGameEngine/Assets/AssetsManager.hpp>
 #include <MyGameEngine/GUI/Windows/Window.hpp>
 #include <MyGameEngine/GUI/Windows/WindowHost.hpp>
 #include <MyGameEngine/Graphics/OpenGL/OpenGLAPI.hpp>
@@ -8,28 +9,6 @@
 #include <cmath>
 
 bool WantToExit = false;
-
-static const char* vertexShaderSource = R"glsl(
-#version 330 core
-layout (location = 0) in vec3 aPos;
-
-void main()
-{
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-}
-)glsl";
-
-static const char* fragmentShaderSource = R"glsl(
-#version 330 core
-out vec4 FragColor;
-
-uniform vec4 uniColor;
-
-void main()
-{
-    FragColor = uniColor;
-}
-)glsl";
 
 static float vertices[] = {
    0.5f,  0.5f, 0.0f, // top right
@@ -46,10 +25,28 @@ static GLuint VAO {}, VBO {}, EBO {};
 static GLuint shaderProgram {};
 static GLint uniColorLocation {};
 
-static void RenderInit(OpenGLCommandsProvider* gl) {
+static void RenderInit(OpenGLCommandsProvider* gl, AssetsManager& assetsManager) {
   int success;
   char infoLog[512];
   GLuint vertexShader {}, fragmentShader {};
+
+  Buffer vertexShaderSource, fragmentShaderSource;
+  const char* shaderSource;
+  GLint shaderSourceLen;
+
+  if (auto result = assetsManager.GetAssetData(U"Shaders/hello-triangle.vert"_s)) {
+    vertexShaderSource = std::move(result).value();
+  }
+  else {
+    // todo exit? return error?
+  }
+
+  if (auto result = assetsManager.GetAssetData(U"Shaders/hello-triangle.frag"_s)) {
+    fragmentShaderSource = std::move(result).value();
+  }
+  else {
+    // todo exit? return error?
+  }
 
   gl->glGenVertexArrays(1, &VAO);
   gl->glBindVertexArray(VAO);
@@ -63,7 +60,9 @@ static void RenderInit(OpenGLCommandsProvider* gl) {
   gl->glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   vertexShader = gl->glCreateShader(GL_VERTEX_SHADER);
-  gl->glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
+  shaderSource = static_cast<const char*>(vertexShaderSource.GetBuffer());
+  shaderSourceLen = vertexShaderSource.GetSize();
+  gl->glShaderSource(vertexShader, 1, &shaderSource, &shaderSourceLen);
   gl->glCompileShader(vertexShader);
   gl->glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
   if (!success) {
@@ -72,7 +71,9 @@ static void RenderInit(OpenGLCommandsProvider* gl) {
   }
 
   fragmentShader = gl->glCreateShader(GL_FRAGMENT_SHADER);
-  gl->glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
+  shaderSource = static_cast<const char*>(fragmentShaderSource.GetBuffer());
+  shaderSourceLen = fragmentShaderSource.GetSize();
+  gl->glShaderSource(fragmentShader, 1, &shaderSource, &shaderSourceLen);
   gl->glCompileShader(fragmentShader);
   gl->glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
   if (!success) {
@@ -161,10 +162,14 @@ uint GameMain() {
     if (!openGlContextResult.has_value())
       return 1;
 
+    AssetsManager assetsManager;
+    if (auto result = assetsManager.LoadArchive("base.gamefiles"); !result)
+      return 1;
+
     std::shared_ptr<OpenGLContext> openGlContext = std::move(openGlContextResult).value();
     auto gl = openGlContext->GetCommandsProvider();
 
-    RenderInit(gl);
+    RenderInit(gl, assetsManager);
 
     uint framesDrawn = 0;
     auto nextFpsCountResetTimepoint = std::chrono::steady_clock::now() + std::chrono::seconds(1);
