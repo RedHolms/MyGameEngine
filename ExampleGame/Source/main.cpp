@@ -11,10 +11,10 @@
 bool WantToExit = false;
 
 static float vertices[] = {
-   0.5f,  0.5f, 0.0f, // top right
-   0.5f, -0.5f, 0.0f, // bottom right
-  -0.5f, -0.5f, 0.0f, // bottom left
-  -0.5f,  0.5f, 0.0f  // top left
+   0.5f,  0.5f, 0.0f,  1.0f, 0.0f, 1.0f, // top right
+   0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f, // bottom right
+  -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f, // bottom left
+  -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, 1.0f, // top left
 };
 static unsigned int indices[] = {
   0, 1, 3,
@@ -96,8 +96,10 @@ static void RenderInit(OpenGLCommandsProvider* gl, AssetsManager& assetsManager)
 
   gl->glUseProgram(shaderProgram);
 
-  gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), reinterpret_cast<void*>(0));
+  gl->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(0));
   gl->glEnableVertexAttribArray(0);
+  gl->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+  gl->glEnableVertexAttribArray(1);
 
   uniColorLocation = gl->glGetUniformLocation(shaderProgram, "uniColor");
 }
