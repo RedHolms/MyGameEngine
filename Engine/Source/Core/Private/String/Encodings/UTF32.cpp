@@ -3,7 +3,7 @@
 template <Endianness TargetEndianness, Encoding Encoding>
 struct __Utf32Impl {
   static inline EncodedString Encode(const char32_t* string, size_t length) noexcept {
-    Buffer result = Buffer::Allocate((length + 1) * sizeof(char32_t));
+    Buffer result = Buffer::AllocateZeroed((length + 1) * sizeof(char32_t));
 
     if constexpr (Endianness::NATIVE == TargetEndianness) {
       MemoryUtils::CopyBytes(result.GetBuffer(), string, length * sizeof(char32_t));

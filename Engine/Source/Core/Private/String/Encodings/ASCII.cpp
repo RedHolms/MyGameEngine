@@ -1,7 +1,7 @@
 #include <Private/String/Encodings/ASCII.hpp>
 
 EncodedString ASCII_EncodingFunctions::Encode(const char32_t* string, size_t length) noexcept {
-  Buffer result = Buffer::Allocate(length + 1);
+  Buffer result = Buffer::AllocateZeroed(length + 1);
 
   for (size_t i = 0; i < length; ++i) {
     auto codepoint = string[i];

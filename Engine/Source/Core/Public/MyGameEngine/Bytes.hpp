@@ -291,7 +291,7 @@ private:
 class Buffer final {
 public:
   // Create a buffer and allocate "size" bytes and fill memory with zeroes
-  static Buffer Allocate(size_t size) {
+  static Buffer AllocateZeroed(size_t size) {
     Buffer result {};
     result.Resize(size);
     result.Fill(0);
