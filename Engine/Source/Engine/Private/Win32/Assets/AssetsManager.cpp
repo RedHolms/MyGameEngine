@@ -1,6 +1,7 @@
 #include <MyGameEngine/Assets/AssetsManager.hpp>
 
-#include <deque>
+#include <MyGameEngine/Serialization/ByteStream.hpp>
+#include <MyGameEngine/FS/File.hpp>
 #include <map>
 #include <unordered_map>
 #include <set>

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <MyGameEngine/DataSource.hpp>
 #include <MyGameEngine/IntTypes.hpp>
 #include <MyGameEngine/MemoryUtils.hpp>
 #include <bit>
@@ -148,6 +149,39 @@ constexpr T ConventEndiannessToNative(T value, Endianness from) noexcept {
   inline void WriteDoubleBE(size_t offset, double value) { return WriteDouble(offset, value, Endianness::BIG); }       \
   inline void WriteDoubleLE(size_t offset, double value) { return WriteDouble(offset, value, Endianness::LITTLE); }
 
+class MemoryByteSource final : public ISyncRandomAccessByteSource {
+public:
+  constexpr MemoryByteSource(void const* data, size_t sizeInBytes) noexcept
+    : m_data(data),
+      m_sizeInBytes(sizeInBytes) {}
+
+  constexpr ~MemoryByteSource() override = default;
+
+public:
+  inline size_t GetDataSize() const override {
+    return m_sizeInBytes;
+  }
+
+  inline bool IsPlacedInMemory() const override {
+    return true;
+  }
+
+  inline std::expected<void, String> ReadBytesTo(size_t offset, void* outBuffer, size_t bytesCount) const override {
+    if (bytesCount == 0)
+      return {}; // success
+
+    if (bytesCount > m_sizeInBytes || offset > m_sizeInBytes - bytesCount)
+      return std::unexpected { U"Out of range"_s };
+
+    MemoryUtils::CopyBytes(outBuffer, static_cast<uint8 const*>(m_data) + offset, bytesCount);
+    return {}; // success
+  }
+
+private:
+  void const* m_data;
+  size_t m_sizeInBytes;
+};
+
 /**
  * Not owned immutable memory range
  */
@@ -172,6 +206,10 @@ public:
     if (count > m_size - begin)
       count = m_size - begin;
     return Bytes { static_cast<uint8 const*>(GetData()) + begin, count };
+  }
+
+  constexpr MemoryByteSource ToByteSource() const noexcept {
+    return MemoryByteSource { m_data, m_size };
   }
 
   template <typename T>
@@ -238,6 +276,10 @@ public:
     if (count > m_size - begin)
       count = m_size - begin;
     return MutableBytes { static_cast<uint8*>(GetData()) + begin, count };
+  }
+
+  constexpr MemoryByteSource ToByteSource() const noexcept {
+    return MemoryByteSource { m_data, m_size };
   }
 
   template <typename T>
@@ -395,6 +437,10 @@ public:
     if (count > m_size - begin)
       count = m_size - begin;
     return MutableBytes { m_buffer + begin, count };
+  }
+
+  constexpr MemoryByteSource ToByteSource() const noexcept {
+    return MemoryByteSource { m_buffer, m_size };
   }
 
   template <typename T>

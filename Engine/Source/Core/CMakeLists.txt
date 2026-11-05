@@ -15,16 +15,20 @@ target_sources(MyGameEngine_Core PRIVATE
   "Private/String/Encodings/WCHAR.hpp"
   "Private/Assert.cpp"
   "Private/Console.cpp"
+  "Private/DataSource.cpp"
   "Private/Logging.cpp"
   "Private/ThreadInfo.cpp"
 )
 
 target_sources(MyGameEngine_Core PUBLIC
+  "Public/MyGameEngine/FS/File.hpp"
   "Public/MyGameEngine/Logging/VerbosityColors.hpp"
   "Public/MyGameEngine/Platform/PlatformInfo.hpp"
+  "Public/MyGameEngine/Serialization/ByteStream.hpp"
   "Public/MyGameEngine/Assert.hpp"
   "Public/MyGameEngine/Bytes.hpp"
   "Public/MyGameEngine/Console.hpp"
+  "Public/MyGameEngine/DataSource.hpp"
   "Public/MyGameEngine/EncodedString.hpp"
   "Public/MyGameEngine/Guards.hpp"
   "Public/MyGameEngine/IntTypes.hpp"
