@@ -21,7 +21,8 @@ target_sources(MyGameEngine_Core PRIVATE
 )
 
 target_sources(MyGameEngine_Core PUBLIC
-  "Public/MyGameEngine/FS/File.hpp"
+  "Public/MyGameEngine/FileSystem/File.hpp"
+  "Public/MyGameEngine/FileSystem/Path.hpp"
   "Public/MyGameEngine/Logging/VerbosityColors.hpp"
   "Public/MyGameEngine/Platform/PlatformInfo.hpp"
   "Public/MyGameEngine/Serialization/ByteStream.hpp"

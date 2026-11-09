@@ -8,6 +8,7 @@ target_sources(MyGameEngine PRIVATE
   "Private/Graphics/GraphicsAPIsCatalog.cpp"
   "Private/Graphics/GraphicsContext.cpp"
   "Private/Win32/Assets/AssetsManager.cpp"
+  "Private/Win32/FileSystem/Path.cpp"
   "Private/Win32/Windows/Win32Window.cpp"
   "Private/Win32/Windows/Win32WindowHost.cpp"
 )
