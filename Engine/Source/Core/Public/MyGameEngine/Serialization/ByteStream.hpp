@@ -40,11 +40,11 @@ public:
     m_readPointer += offset;
   }
 
-  inline void SetWritePointer(size_t writePointer) const noexcept { // const is intentional
+  inline void SetWritePointer(size_t writePointer) noexcept {
     m_writePointer = writePointer;
   }
 
-  inline void MoveWritePointer(ssize_t offset) const noexcept { // const is intentional
+  inline void MoveWritePointer(ssize_t offset) noexcept {
     m_writePointer += offset;
   }
 
@@ -248,5 +248,5 @@ private:
   Buffer m_buffer;
   size_t m_actualDataSize = 0;
   mutable size_t m_readPointer = 0;
-  mutable size_t m_writePointer = 0;
+  size_t m_writePointer = 0;
 };
