@@ -26,6 +26,9 @@ AllowShortLambdasOnASingleLine: Empty
 AllowShortLoopsOnASingleLine: false
 AllowShortNamespacesOnASingleLine: false
 
+IndentCaseBlocks: true
+IndentCaseLabels: true
+
 AlwaysBreakBeforeMultilineStrings: true
 
 AttributeMacros: [implicit, forceinline]
