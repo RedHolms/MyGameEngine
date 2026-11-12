@@ -2,6 +2,8 @@ add_library(MyGameEngine_Core STATIC)
 add_library(MyGameEngine::Core ALIAS MyGameEngine_Core)
 
 target_sources(MyGameEngine_Core PRIVATE
+  "Private/Serialization/Formats/PNG/PNGDecoder.cpp"
+  "Private/Serialization/Formats/PNG/PNGParser.cpp"
   "Private/String/Encodings/ASCII.cpp"
   "Private/String/Encodings/ASCII.hpp"
   "Private/String/Encodings/Base.hpp"
@@ -13,6 +15,8 @@ target_sources(MyGameEngine_Core PRIVATE
   "Private/String/Encodings/UTF32.cpp"
   "Private/String/Encodings/UTF32.hpp"
   "Private/String/Encodings/WCHAR.hpp"
+  "Private/Win32/FileSystem/File.cpp"
+  "Private/Win32/FileSystem/Path.cpp"
   "Private/Assert.cpp"
   "Private/Console.cpp"
   "Private/DataSource.cpp"
@@ -25,6 +29,8 @@ target_sources(MyGameEngine_Core PUBLIC
   "Public/MyGameEngine/FileSystem/Path.hpp"
   "Public/MyGameEngine/Logging/VerbosityColors.hpp"
   "Public/MyGameEngine/Platform/PlatformInfo.hpp"
+  "Public/MyGameEngine/Serialization/Formats/PNG/PNGDecoder.hpp"
+  "Public/MyGameEngine/Serialization/Formats/PNG/PNGParser.hpp"
   "Public/MyGameEngine/Serialization/ByteStream.hpp"
   "Public/MyGameEngine/Assert.hpp"
   "Public/MyGameEngine/Bytes.hpp"
